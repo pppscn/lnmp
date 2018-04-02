@@ -92,15 +92,15 @@ Install_Nginx()
 
     mkdir -p ${Default_Website_Dir}
     chmod +w ${Default_Website_Dir}
-    mkdir -p /home/wwwlogs
-    chmod 777 /home/wwwlogs
+    mkdir -p /www/log
+    chmod 777 /www/log
 
     chown -R www:www ${Default_Website_Dir}
 
     mkdir /usr/local/nginx/conf/vhost
 
-    if [ "${Default_Website_Dir}" != "/home/wwwroot/default" ]; then
-        sed -i "s#/home/wwwroot/default#${Default_Website_Dir}#g" /usr/local/nginx/conf/nginx.conf
+    if [ "${Default_Website_Dir}" != "/www/web/default" ]; then
+        sed -i "s#/www/web/default#${Default_Website_Dir}#g" /usr/local/nginx/conf/nginx.conf
     fi
 
     if [ "${Stack}" = "lnmp" ]; then

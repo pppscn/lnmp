@@ -137,8 +137,8 @@ ServerAdmin ${email}
 php_admin_value open_basedir "${vhostdir}:/tmp/:/var/tmp/:/proc/"
 DocumentRoot "${vhostdir}"
 ServerName ${domain}
-ErrorLog "/home/wwwlogs/${al_name}-error_log"
-CustomLog "/home/wwwlogs/${al_name}-access_log" combined
+ErrorLog "/www/log/${al_name}-error_log"
+CustomLog "/www/log/${al_name}-access_log" combined
 <Directory "${vhostdir}">
     SetOutputFilter DEFLATE
     Options FollowSymLinks
@@ -191,12 +191,12 @@ Add_VHost()
         echo " domain list: ${moredomain}"
     fi
 
-    vhostdir="/home/wwwroot/${domain}"
+    vhostdir="/www/web/${domain}"
     echo "Please enter the directory for the domain: $domain"
-    Echo_Yellow "Default directory: /home/wwwroot/${domain}: "
+    Echo_Yellow "Default directory: /www/web/${domain}: "
     read vhostdir
     if [ "${vhostdir}" == "" ]; then
-        vhostdir="/home/wwwroot/${domain}"
+        vhostdir="/www/web/${domain}"
     fi
     echo "Virtual Host Directory: ${vhostdir}"
 
@@ -655,7 +655,7 @@ Add_SSL_Info_Menu()
         if [ "${al_name}" == "" ]; then
             al_name="${domain}"
         fi
-        al="access_log  /home/wwwlogs/${al_name}.log;"
+        al="access_log  /www/log/${al_name}.log;"
         echo "You access log filename: ${al_name}.log"
     fi
 
@@ -779,8 +779,8 @@ ServerAdmin ${email}
 php_admin_value open_basedir "${vhostdir}:/tmp/:/var/tmp/:/proc/"
 DocumentRoot ${vhostdir}
 ServerName ${domain}:443
-ErrorLog "/home/wwwlogs/${al_name}-error_log"
-CustomLog "/home/wwwlogs/${al_name}-access_log" combined
+ErrorLog "/www/log/${al_name}-error_log"
+CustomLog "/www/log/${al_name}-access_log" combined
 SSLEngine on
 SSLCertificateFile ${ssl_certificate}
 SSLCertificateKeyFile ${ssl_certificate_key}

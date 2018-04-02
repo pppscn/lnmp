@@ -472,7 +472,7 @@ zend_loader.license_path=
 EOF
 
     echo "Download Opcache Control Panel..."
-    \cp ${cur_dir}/conf/ocp.php /home/wwwroot/default/ocp.php
+    \cp ${cur_dir}/conf/ocp.php /www/web/default/ocp.php
 
 if [ "${Stack}" = "lnmp" ]; then
     echo "Creating new php-fpm configure file......"

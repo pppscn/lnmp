@@ -16,7 +16,7 @@ Backup_MariaDB()
     mv /usr/local/mariadb /usr/local/oldmariadb${Upgrade_Date}
     mv /etc/init.d/mariadb /usr/local/oldmariadb${Upgrade_Date}/init.d.mariadb.bak.${Upgrade_Date}
     mv /etc/my.cnf /usr/local/oldmariadb${Upgrade_Date}/my.cnf.mariadb.bak.${Upgrade_Date}
-    if [ "${MariaDB_Data_Dir}" != "/usr/local/mariadb/var" ]; then
+    if [ "${MariaDB_Data_Dir}" != "/www/mariadb" ]; then
         mv ${MariaDB_Data_Dir} ${MariaDB_Data_Dir}${Upgrade_Date}
     fi
     if echo "${mariadb_version}" | grep -Eqi '^5.5.' &&  echo "${cur_mariadb_version}" | grep -Eqi '^10.';then

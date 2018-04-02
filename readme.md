@@ -146,9 +146,9 @@ MariaDB 10.2 | 8 | PHP 7.2 | 8 | | | |
 * PHP：/usr/local/php/
 * 多PHP目录：/usr/local/php5.6/ 版本号随安装版本不同而不同
 * PHP扩展插件配置文件目录：/usr/local/php/conf.d/
-* PHPMyAdmin：/home/wwwroot/default/phpmyadmin/
-* 默认虚拟主机网站目录：/home/wwwroot/default/
-* Nginx日志目录：/home/wwwlogs/
+* PHPMyAdmin：/www/web/default/phpmyadmin/
+* 默认虚拟主机网站目录：/www/web/default/
+* Nginx日志目录：/www/log/
 
 ### 配置文件：
 * Nginx主配置文件：/usr/local/nginx/conf/nginx.conf
@@ -165,9 +165,9 @@ MariaDB 10.2 | 8 | PHP 7.2 | 8 | | | |
 |Download_Mirror|下载镜像|一般默认，如异常可[修改下载镜像](https://lnmp.org/faq/download-url.html)|
 |Nginx_Modules_Options|添加Nginx模块或其他编译参数|--add-module=/第三方模块源码目录|
 |PHP_Modules_Options|添加PHP模块或编译参数|--enable-exif 有些模块需提前安装好依赖包|
-|MySQL_Data_Dir|MySQL数据库目录设置|默认/usr/local/mysql/var|
-|MariaDB_Data_Dir|MariaDB数据库目录设置|默认/usr/local/mariadb/var|
-|Default_Website_Dir|默认虚拟主机网站目录位置|默认/home/wwwroot/default|
+|MySQL_Data_Dir|MySQL数据库目录设置|默认/www/mysql|
+|MariaDB_Data_Dir|MariaDB数据库目录设置|默认/www/mariadb|
+|Default_Website_Dir|默认虚拟主机网站目录位置|默认/www/web/default|
 |Enable_Nginx_Openssl|Nginx是否使用新版openssl|默认 y，建议不修改，y是启用并开启到http2|
 |Enable_PHP_Fileinfo|是否安装开启php的fileinfo模块|默认n，根据自己情况而定，安装启用的话改成 y|
 |Enable_Nginx_Lua|是否为Nginx安装lua支持|默认n，安装lua可以使用一些基于lua的waf网站防火墙|

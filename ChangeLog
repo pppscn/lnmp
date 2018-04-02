@@ -130,7 +130,7 @@ MySQL安装时可选5.1.73、5.5.42、5.6.23，MariaDB可选5.5.42、10.0.17；
 PHP安装时可选5.2.17、5.3.29、5.4.41、5.5.25、5.6.9；
 安装时增加内存优化jemalloc或gperftools；
 Apache安装时可选2.2.29或2.4.12；
-Apache日志统一到/home/wwwlogs/下；
+Apache日志统一到/www/log/下；
 更新Nginx至1.8.0；
 更新Zend Guard Loader至支持PHP 5.6；
 Nginx配置文件进行了调整，启用php和pathinfo采用include方式，增加ssl范例配置；
@@ -177,7 +177,7 @@ Nginx配置文件进行了调整，启用php和pathinfo采用include方式，增
 调整优化安装脚本，自动记录安装日志至/root/lnmp-install.log安装失败时可以提供此文件；
 安装时增加PHP 5.3和MySQL 5.5版本选择，可以自由选择；
 删除安装时需要输入域名的选择，以免对新生造成误导；
-默认站点目录更换到/home/wwwroot/default/ ；
+默认站点目录更换到/www/web/default/ ；
 增加proftpd安装脚本 proftpd.sh和proftpd用户创建脚本proftpd_vhost.sh；
 增加xcache安装脚本；
 增加502重启脚本；
@@ -239,7 +239,7 @@ Nginx升级至0.8.54、MySQL升级至5.1.54、PHP升级至5.2.17；
 
 2010年10月9日发布LNMP 0.5
 升级Nginx到0.7.67、MySQL到5.1.48、PHP升级到5.2.14、PHPMyAdmin升级到3.3.7
-为安全将Nginx日志移动到/home/wwwlogs/下面；
+为安全将Nginx日志移动到/www/log/下面；
 更改32位64位判别方式；
 增加系统时间调整，防止时间错误造成编译出错；
 优化eAccelerator安装程序；

@@ -3,7 +3,7 @@
 #author: https://lnmp.org
 
 #set the path to nginx log files
-log_files_path="/home/wwwlogs/"
+log_files_path="/www/log/"
 log_files_dir=${log_files_path}$(date -d "yesterday" +"%Y")/$(date -d "yesterday" +"%m")
 #set nginx log files you want to cut
 log_files_name=(access vpser licess)

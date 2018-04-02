@@ -15,7 +15,7 @@ Backup_MySQL()
     mv /usr/local/mysql /usr/local/oldmysql${Upgrade_Date}
     mv /etc/init.d/mysql /usr/local/oldmysql${Upgrade_Date}/init.d.mysql.bak.${Upgrade_Date}
     mv /etc/my.cnf /usr/local/oldmysql${Upgrade_Date}/my.cnf.bak.${Upgrade_Date}
-    if [ "${MySQL_Data_Dir}" != "/usr/local/mysql/var" ]; then
+    if [ "${MySQL_Data_Dir}" != "/www/mysql" ]; then
         mv ${MySQL_Data_Dir} ${MySQL_Data_Dir}${Upgrade_Date}
     fi
     if echo "${mysql_version}" | grep -Eqi '^5.5.' &&  echo "${cur_mysql_version}" | grep -Eqi '^5.6.';then

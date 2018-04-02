@@ -8,8 +8,8 @@ Install_Apache_22()
         useradd -s /sbin/nologin -g www www
         mkdir -p ${Default_Website_Dir}
         chmod +w ${Default_Website_Dir}
-        mkdir -p /home/wwwlogs
-        chmod 777 /home/wwwlogs
+        mkdir -p /www/log
+        chmod 777 /www/log
         chown -R www:www ${Default_Website_Dir}
     fi
     Tarj_Cd ${Apache_Ver}.tar.bz2 ${Apache_Ver}
@@ -44,9 +44,9 @@ Install_Apache_22()
     ln -sf /usr/local/lib/libltdl.so.3 /usr/lib/libltdl.so.3
     mkdir /usr/local/apache/conf/vhost
 
-    if [ "${Default_Website_Dir}" != "/home/wwwroot/default" ]; then
-        sed -i "s#/home/wwwroot/default#${Default_Website_Dir}#g" /usr/local/apache/conf/httpd.conf
-        sed -i "s#/home/wwwroot/default#${Default_Website_Dir}#g" /usr/local/apache/conf/extra/httpd-vhosts.conf
+    if [ "${Default_Website_Dir}" != "/www/web/default" ]; then
+        sed -i "s#/www/web/default#${Default_Website_Dir}#g" /usr/local/apache/conf/httpd.conf
+        sed -i "s#/www/web/default#${Default_Website_Dir}#g" /usr/local/apache/conf/extra/httpd-vhosts.conf
     fi
 
     if [[ "${PHPSelect}" =~ ^[678]$ ]]; then
@@ -65,8 +65,8 @@ Install_Apache_24()
         useradd -s /sbin/nologin -g www www
         mkdir -p ${Default_Website_Dir}
         chmod +w ${Default_Website_Dir}
-        mkdir -p /home/wwwlogs
-        chmod 777 /home/wwwlogs
+        mkdir -p /www/log
+        chmod 777 /www/log
         chown -R www:www ${Default_Website_Dir}
         Install_Openssl
         Install_Nghttp2
@@ -114,9 +114,9 @@ Install_Apache_24()
     mkdir /usr/local/apache/conf/vhost
 
     sed -i 's/NameVirtualHost .*//g' /usr/local/apache/conf/extra/httpd-vhosts.conf
-    if [ "${Default_Website_Dir}" != "/home/wwwroot/default" ]; then
-        sed -i "s#/home/wwwroot/default#${Default_Website_Dir}#g" /usr/local/apache/conf/httpd.conf
-        sed -i "s#/home/wwwroot/default#${Default_Website_Dir}#g" /usr/local/apache/conf/extra/httpd-vhosts.conf
+    if [ "${Default_Website_Dir}" != "/www/web/default" ]; then
+        sed -i "s#/www/web/default#${Default_Website_Dir}#g" /usr/local/apache/conf/httpd.conf
+        sed -i "s#/www/web/default#${Default_Website_Dir}#g" /usr/local/apache/conf/extra/httpd-vhosts.conf
     fi
 
     if [[ "${PHPSelect}" =~ ^[678]$ ]]; then
