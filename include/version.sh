@@ -13,27 +13,30 @@ TCMalloc_Ver='gperftools-2.6.3'
 Libunwind_Ver='libunwind-1.1'
 Libicu4c_Ver='icu4c-58_1'
 Boost_Ver='boost_1_59_0'
+Boost_New_Ver='boost_1_66_0'
 Openssl_Ver='openssl-1.0.2o'
 Nghttp2_Ver='nghttp2-1.31.0'
 Luajit_Ver='LuaJIT-2.0.5'
 LuaNginxModule='lua-nginx-module-0.10.11'
 NgxDevelKit='ngx_devel_kit-0.3.0'
-Nginx_Ver='nginx-1.12.2'
+Nginx_Ver='nginx-1.14.0'
 if [ "${DBSelect}" = "1" ]; then
     Mysql_Ver='mysql-5.1.73'
 elif [ "${DBSelect}" = "2" ]; then
-    Mysql_Ver='mysql-5.5.59'
+    Mysql_Ver='mysql-5.5.60'
 elif [ "${DBSelect}" = "3" ]; then
-    Mysql_Ver='mysql-5.6.39'
+    Mysql_Ver='mysql-5.6.40'
 elif [ "${DBSelect}" = "4" ]; then
-    Mysql_Ver='mysql-5.7.21'
+    Mysql_Ver='mysql-5.7.22'
 elif [ "${DBSelect}" = "5" ]; then
-    Mariadb_Ver='mariadb-5.5.59'
+    Mysql_Ver='mysql-8.0.11'
 elif [ "${DBSelect}" = "6" ]; then
-    Mariadb_Ver='mariadb-10.0.34'
+    Mariadb_Ver='mariadb-5.5.59'
 elif [ "${DBSelect}" = "7" ]; then
-    Mariadb_Ver='mariadb-10.1.32'
+    Mariadb_Ver='mariadb-10.0.34'
 elif [ "${DBSelect}" = "8" ]; then
+    Mariadb_Ver='mariadb-10.1.32'
+elif [ "${DBSelect}" = "9" ]; then
     Mariadb_Ver='mariadb-10.2.14'
 fi
 if [ "${PHPSelect}" = "1" ]; then
@@ -56,14 +59,14 @@ fi
 if [[ "${PHPSelect}" =~ ^[123]$ ]]; then
     PhpMyAdmin_Ver='phpMyAdmin-4.0.10.20-all-languages'
 else
-    PhpMyAdmin_Ver='phpMyAdmin-4.7.9-all-languages'
+    PhpMyAdmin_Ver='phpMyAdmin-4.8.0-all-languages'
 fi
 APR_Ver='apr-1.6.3'
 APR_Util_Ver='apr-util-1.6.1'
 if [ "${ApacheSelect}" = "1" ]; then
     Apache_Ver='httpd-2.2.34'
 elif [ "${ApacheSelect}" = "2" ]; then
-    Apache_Ver='httpd-2.4.29'
+    Apache_Ver='httpd-2.4.33'
 fi
 
 Pureftpd_Ver='pure-ftpd-1.0.47'
@@ -73,8 +76,8 @@ ImageMagick_Ver='ImageMagick-7.0.7-25'
 Imagick_Ver='imagick-3.4.3'
 ZendOpcache_Ver='zendopcache-7.0.5'
 Redis_Stable_Ver='redis-4.0.9'
-PHPRedis_Ver='redis-4.0.0'
-Memcached_Ver='memcached-1.5.6'
+PHPRedis_Ver='redis-4.0.1'
+Memcached_Ver='memcached-1.5.7'
 Libmemcached_Ver='libmemcached-1.0.18'
 PHPMemcached_Ver='memcached-2.2.0'
 PHP7Memcached_Ver='memcached-3.0.4'

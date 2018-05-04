@@ -105,7 +105,7 @@ RHEL_Modify_Source()
 Ubuntu_Modify_Source()
 {
     if [ "${country}" = "CN" ]; then
-        OldReleasesURL='http://mirrors.ustc.edu.cn/ubuntu-old-releases/ubuntu/dists/'
+        OldReleasesURL='http://mirrors.ustc.edu.cn/ubuntu-old-releases/ubuntu/'
     else
         OldReleasesURL='http://old-releases.ubuntu.com/ubuntu/'
     fi
@@ -133,13 +133,15 @@ Ubuntu_Modify_Source()
     elif grep -Eqi "15.10" /etc/*-release || echo "${Ubuntu_Version}" | grep -Eqi '^15.10'; then
         CodeName='wily'
     elif grep -Eqi "16.10" /etc/*-release || echo "${Ubuntu_Version}" | grep -Eqi '^16.10'; then
-        Ubuntu_Deadline yakkety
+        CodeName='yakkety'
     elif grep -Eqi "14.04" /etc/*-release || echo "${Ubuntu_Version}" | grep -Eqi '^14.04'; then
         Ubuntu_Deadline trusty
     elif grep -Eqi "17.04" /etc/*-release || echo "${Ubuntu_Version}" | grep -Eqi '^17.04'; then
-        Ubuntu_Deadline zesty
-    elif grep -Eqi "17.10" /etc/*-release || echo "${Ubuntu_Version}" | grep -Eqi '^17.04'; then
+        CodeName='zesty'
+    elif grep -Eqi "17.10" /etc/*-release || echo "${Ubuntu_Version}" | grep -Eqi '^17.10'; then
         Ubuntu_Deadline artful
+    elif grep -Eqi "16.04" /etc/*-release || echo "${Ubuntu_Version}" | grep -Eqi '^16.04'; then
+        Ubuntu_Deadline xenial
     fi
     if [ "${CodeName}" != "" ]; then
         \cp /etc/apt/sources.list /etc/apt/sources.list.$(date +"%Y%m%d")
@@ -160,7 +162,7 @@ EOF
 
 Check_Old_Releases_URL()
 {
-    OR_Status=`wget --spider --server-response http://${OldReleasesURL}/ubuntu/dists/$1/Release 2>&1 | awk '/^  HTTP/{print $2}'`
+    OR_Status=`wget --spider --server-response ${OldReleasesURL}/dists/$1/Release 2>&1 | awk '/^  HTTP/{print $2}'`
     if [ ${OR_Status} != "404" ]; then
         echo "Ubuntu old-releases status: ${OR_Status}";
         CodeName=$1
@@ -169,34 +171,27 @@ Check_Old_Releases_URL()
 
 Ubuntu_Deadline()
 {
-    yakkety_deadline=`date -d "2017-7-22 00:00:00" +%s`
     trusty_deadline=`date -d "2019-7-22 00:00:00" +%s`
-    zesty_deadline=`date -d "2018-1-31 00:00:00" +%s`
     artful_deadline=`date -d "2018-7-31 00:00:00" +%s`
+    xenial_deadline=`date -d "2021-4-31 00:00:00" +%s`
     cur_time=`date  +%s`
     case "$1" in
-        yakkety)
-            if [ ${cur_time} -gt ${yakkety_deadline} ]; then
-                echo "${cur_time} > ${yakkety_deadline}"
-                Check_Old_Releases_URL yakkety
-            fi
-            ;;
         trusty)
             if [ ${cur_time} -gt ${trusty_deadline} ]; then
                 echo "${cur_time} > ${trusty_deadline}"
                 Check_Old_Releases_URL trusty
             fi
             ;;
-        zesty)
-            if [ ${cur_time} -gt ${zesty_deadline} ]; then
-                echo "${cur_time} > ${zesty_deadline}"
-                Check_Old_Releases_URL zesty
-            fi
-            ;;
         artful)
             if [ ${cur_time} -gt ${artful_deadline} ]; then
                 echo "${cur_time} > ${artful_deadline}"
                 Check_Old_Releases_URL artful
+            fi
+            ;;
+        xenial)
+            if [ ${cur_time} -gt ${xenial_deadline} ]; then
+                echo "${cur_time} > ${xenial_deadline}"
+                Check_Old_Releases_URL xenial
             fi
             ;;
     esac
@@ -248,9 +243,9 @@ Check_Download()
     if [ "${Stack}" != "lamp" ]; then
         Download_Files ${Download_Mirror}/web/nginx/${Nginx_Ver}.tar.gz ${Nginx_Ver}.tar.gz
     fi
-    if [[ "${DBSelect}" =~ ^[1234]$ ]]; then
+    if [[ "${DBSelect}" =~ ^[12345]$ ]]; then
         Download_Files ${Download_Mirror}/datebase/mysql/${Mysql_Ver}.tar.gz ${Mysql_Ver}.tar.gz
-    elif [[ "${DBSelect}" =~ ^[5678]$ ]]; then
+    elif [[ "${DBSelect}" =~ ^[6789]$ ]]; then
         Download_Files ${Download_Mirror}/datebase/mariadb/${Mariadb_Ver}.tar.gz ${Mariadb_Ver}.tar.gz
     fi
     Download_Files ${Download_Mirror}/web/php/${Php_Ver}.tar.bz2 ${Php_Ver}.tar.bz2
@@ -267,6 +262,24 @@ Check_Download()
     Download_Files ${Download_Mirror}/lib/openssl/${Openssl_Ver}.tar.gz ${Openssl_Ver}.tar.gz
 }
 
+Make_Install()
+{
+    make -j `grep 'processor' /proc/cpuinfo | wc -l`
+    if [ $? -ne 0 ]; then
+        make
+    fi
+    make install
+}
+
+PHP_Make_Install()
+{
+    make ZEND_EXTRA_LIBS='-liconv' -j `grep 'processor' /proc/cpuinfo | wc -l`
+    if [ $? -ne 0 ]; then
+        make ZEND_EXTRA_LIBS='-liconv'
+    fi
+    make install
+}
+
 Install_Autoconf()
 {
     Echo_Blue "[+] Installing ${Autoconf_Ver}"
@@ -274,7 +287,7 @@ Install_Autoconf()
     Download_Files ${Download_Mirror}/lib/autoconf/${Autoconf_Ver}.tar.gz ${Autoconf_Ver}.tar.gz
     Tar_Cd ${Autoconf_Ver}.tar.gz ${Autoconf_Ver}
     ./configure --prefix=/usr/local/autoconf-2.13
-    make && make install
+    Make_Install
     cd ${cur_dir}/src/
     rm -rf ${cur_dir}/src/${Autoconf_Ver}
 }
@@ -285,7 +298,7 @@ Install_Libiconv()
     Tar_Cd ${Libiconv_Ver}.tar.gz ${Libiconv_Ver}
     patch -p0 < ${cur_dir}/src/patch/libiconv-glibc-2.16.patch
     ./configure --enable-static
-    make && make install
+    Make_Install
     cd ${cur_dir}/src/
     rm -rf ${cur_dir}/src/${Libiconv_Ver}
 }
@@ -295,11 +308,11 @@ Install_Libmcrypt()
     Echo_Blue "[+] Installing ${LibMcrypt_Ver}"
     Tar_Cd ${LibMcrypt_Ver}.tar.gz ${LibMcrypt_Ver}
     ./configure
-    make && make install
+    Make_Install
     /sbin/ldconfig
     cd libltdl/
     ./configure --enable-ltdl-install
-    make && make install
+    Make_Install
     ln -sf /usr/local/lib/libmcrypt.la /usr/lib/libmcrypt.la
     ln -sf /usr/local/lib/libmcrypt.so /usr/lib/libmcrypt.so
     ln -sf /usr/local/lib/libmcrypt.so.4 /usr/lib/libmcrypt.so.4
@@ -314,7 +327,7 @@ Install_Mcrypt()
     Echo_Blue "[+] Installing ${Mcypt_Ver}"
     Tar_Cd ${Mcypt_Ver}.tar.gz ${Mcypt_Ver}
     ./configure
-    make && make install
+    Make_Install
     cd ${cur_dir}/src/
     rm -rf ${cur_dir}/src/${Mcypt_Ver}
 }
@@ -324,7 +337,7 @@ Install_Mhash()
     Echo_Blue "[+] Installing ${Mhash_Ver}"
     Tarj_Cd ${Mhash_Ver}.tar.bz2 ${Mhash_Ver}
     ./configure
-    make && make install
+    Make_Install
     ln -sf /usr/local/lib/libmhash.a /usr/lib/libmhash.a
     ln -sf /usr/local/lib/libmhash.la /usr/lib/libmhash.la
     ln -sf /usr/local/lib/libmhash.so /usr/lib/libmhash.so
@@ -340,7 +353,7 @@ Install_Freetype()
     Echo_Blue "[+] Installing ${Freetype_Ver}"
     Tarj_Cd ${Freetype_Ver}.tar.bz2 ${Freetype_Ver}
     ./configure --prefix=/usr/local/freetype
-    make && make install
+    Make_Install
 
     cat > /etc/ld.so.conf.d/freetype.conf<<EOF
 /usr/local/freetype/lib
@@ -360,7 +373,7 @@ Install_Curl()
         Download_Files ${Download_Mirror}/lib/curl/${Curl_Ver}.tar.bz2 ${Curl_Ver}.tar.bz2
         Tarj_Cd ${Curl_Ver}.tar.bz2 ${Curl_Ver}
         ./configure --prefix=/usr/local/curl --enable-ares --without-nss --with-ssl
-        make && make install
+        Make_Install
         cd ${cur_dir}/src/
         rm -rf ${cur_dir}/src/${Curl_Ver}
     fi
@@ -375,7 +388,7 @@ Install_Pcre()
         Download_Files ${Download_Mirror}/web/pcre/${Pcre_Ver}.tar.bz2 ${Pcre_Ver}.tar.bz2
         Tarj_Cd ${Pcre_Ver}.tar.bz2 ${Pcre_Ver}
         ./configure
-        make && make install
+        Make_Install
         cd ${cur_dir}/src/
         rm -rf ${cur_dir}/src/${Pcre_Ver}
     fi
@@ -387,7 +400,7 @@ Install_Jemalloc()
     cd ${cur_dir}/src
     Tarj_Cd ${Jemalloc_Ver}.tar.bz2 ${Jemalloc_Ver}
     ./configure
-    make && make install
+    Make_Install
     ldconfig
     cd ${cur_dir}/src/
     rm -rf ${cur_dir}/src/${Jemalloc_Ver}
@@ -409,7 +422,7 @@ Install_TCMalloc()
     else
         ./configure --enable-frame-pointers
     fi
-    make && make install
+    Make_Install
     ldconfig
     cd ${cur_dir}/src/
     rm -rf ${cur_dir}/src/${TCMalloc_Ver}
@@ -423,7 +436,7 @@ Install_Icu4c()
         Download_Files ${Download_Mirror}/lib/icu4c/${Libicu4c_Ver}-src.tgz ${Libicu4c_Ver}-src.tgz
         Tar_Cd ${Libicu4c_Ver}-src.tgz icu/source
         ./configure --prefix=/usr
-        make && make install
+        Make_Install
         cd ${cur_dir}/src/
         rm -rf ${cur_dir}/src/icu
     fi
@@ -439,13 +452,14 @@ Install_Boost()
         apt-get install -y python-dev
     fi
     cd ${cur_dir}/src
-    Download_Files ${Download_Mirror}/lib/boost/${Boost_Ver}.tar.bz2 ${Boost_Ver}.tar.bz2
-    Tarj_Cd ${Boost_Ver}.tar.bz2 ${Boost_Ver}
-    ./bootstrap.sh
-    ./b2
-    ./b2 install
-    cd ${cur_dir}/src/
-    rm -rf ${cur_dir}/src/${Boost_Ver}
+    if [ "${DBSelect}" = "4" ] || echo "${mysql_version}" | grep -Eqi '^5.7.'; then
+        Download_Files ${Download_Mirror}/lib/boost/${Boost_Ver}.tar.bz2 ${Boost_Ver}.tar.bz2
+        Tarj_Cd ${Boost_Ver}.tar.bz2 ${Boost_Ver}
+    elif [ "${DBSelect}" = "5" ] || echo "${mysql_version}" | grep -Eqi '^8.0.'; then
+        Download_Files ${Download_Mirror}/lib/boost/${Boost_New_Ver}.tar.bz2 ${Boost_New_Ver}.tar.bz2
+        Tarj_Cd ${Boost_New_Ver}.tar.bz2 ${Boost_New_Ver}
+    fi
+    cd ${cur_dir}/src
 }
 
 Install_Openssl()
@@ -458,7 +472,7 @@ Install_Openssl()
         Tar_Cd ${Openssl_Ver}.tar.gz ${Openssl_Ver}
         ./config -fPIC --prefix=/usr/local/openssl --openssldir=/usr/local/openssl
         make depend
-        make && make install
+        Make_Install
         cd ${cur_dir}/src/
         rm -rf ${cur_dir}/src/${Openssl_Ver}
     fi
@@ -473,7 +487,7 @@ Install_Nghttp2()
         [[ -d "${Nghttp2_Ver}" ]] && rm -rf ${Nghttp2_Ver}
         tar Jxf ${Nghttp2_Ver}.tar.xz && cd ${Nghttp2_Ver}
         ./configure --prefix=/usr/local/nghttp2
-        make && make install
+        Make_Install
         cd ${cur_dir}/src/
         rm -rf ${cur_dir}/src/${Nghttp2_Ver}
     fi
@@ -527,6 +541,12 @@ Deb_Lib_Opt()
         ln -sf /usr/lib/i386-linux-gnu/libpng* /usr/lib/
         ln -sf /usr/lib/i386-linux-gnu/libjpeg* /usr/lib/
         ln -sf /usr/include/i386-linux-gnu/asm /usr/include/asm
+    fi
+
+    if [ -d "/usr/lib/arm-linux-gnueabihf" ]; then
+        ln -sf /usr/lib/arm-linux-gnueabihf/libpng* /usr/lib/
+        ln -sf /usr/lib/arm-linux-gnueabihf/libjpeg* /usr/lib/
+        ln -sf /usr/include/arm-linux-gnueabihf/curl /usr/include/
     fi
 
     ulimit -v unlimited

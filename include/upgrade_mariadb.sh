@@ -34,7 +34,7 @@ Upgrade_MariaDB()
 
     Verify_DB_Password
 
-    cur_mariadb_version=`/usr/local/mariadb/bin/mysql -V | awk '{print $5}' | tr -d "\-MariaDB,"`
+    cur_mariadb_version=`/usr/local/mariadb/bin/mysql_config --version`
     mariadb_version=""
     echo "Current MariaDB Version:${cur_mariadb_version}"
     echo "You can get version number from https://downloads.mariadb.org/"
@@ -113,7 +113,7 @@ Upgrade_MariaDB()
     else
         cmake -DCMAKE_INSTALL_PREFIX=/usr/local/mariadb -DWITH_ARIA_STORAGE_ENGINE=1 -DWITH_XTRADB_STORAGE_ENGINE=1 -DWITH_INNOBASE_STORAGE_ENGINE=1 -DWITH_PARTITION_STORAGE_ENGINE=1 -DWITH_MYISAM_STORAGE_ENGINE=1 -DWITH_FEDERATED_STORAGE_ENGINE=1 -DEXTRA_CHARSETS=all -DDEFAULT_CHARSET=utf8mb4 -DDEFAULT_COLLATION=utf8mb4_general_ci -DWITH_READLINE=1 -DWITH_EMBEDDED_SERVER=1 -DENABLED_LOCAL_INFILE=1 ${MariaDBWITHSSL} ${MariaDBMAOpt}
     fi
-    make && make install
+    Make_Install
 
     groupadd mariadb
     useradd -s /sbin/nologin -M -g mariadb mariadb
