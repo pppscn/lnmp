@@ -17,7 +17,7 @@ MySQL_ARM_Patch()
 
 MySQL_Gcc7_Patch()
 {
-    if gcc -dumpversion|grep -q "^7"; then
+    if gcc -dumpversion|grep -q "^[78]"; then
         echo "gcc version: 7"
         if [ "${DBSelect}" = "1" ] || echo "${mysql_version}" | grep -Eqi '^5.1.'; then
             patch -p1 < ${cur_dir}/src/patch/mysql-5.1-mysql-gcc7.patch
@@ -305,7 +305,7 @@ Install_MySQL_55()
     Tar_Cd ${Mysql_Ver}.tar.gz ${Mysql_Ver}
     MySQL_ARM_Patch
     MySQL_Gcc7_Patch
-    cmake -DCMAKE_INSTALL_PREFIX=/usr/local/mysql -DSYSCONFDIR=/etc -DWITH_MYISAM_STORAGE_ENGINE=1 -DWITH_INNOBASE_STORAGE_ENGINE=1 -DWITH_PARTITION_STORAGE_ENGINE=1 -DWITH_FEDERATED_STORAGE_ENGINE=1 -DEXTRA_CHARSETS=all -DDEFAULT_CHARSET=utf8mb4 -DDEFAULT_COLLATION=utf8mb4_general_ci -DWITH_READLINE=1 -DWITH_EMBEDDED_SERVER=1 -DENABLED_LOCAL_INFILE=1 ${MySQL55MAOpt}
+    cmake -DCMAKE_INSTALL_PREFIX=/usr/local/mysql -DSYSCONFDIR=/etc -DWITH_MYISAM_STORAGE_ENGINE=1 -DWITH_INNOBASE_STORAGE_ENGINE=1 -DWITH_PARTITION_STORAGE_ENGINE=1 -DWITH_FEDERATED_STORAGE_ENGINE=1 -DEXTRA_CHARSETS=all -DDEFAULT_CHARSET=utf8mb4 -DDEFAULT_COLLATION=utf8mb4_general_ci -DWITH_READLINE=1 -DWITH_EMBEDDED_SERVER=1 -DENABLED_LOCAL_INFILE=1
     Make_Install
 
     groupadd mysql
@@ -371,6 +371,8 @@ write_buffer = 2M
 
 [mysqlhotcopy]
 interactive-timeout
+
+${MySQLMAOpt}
 EOF
     if [ "${InstallInnodb}" = "y" ]; then
         sed -i 's/^#innodb/innodb/g' /etc/my.cnf
@@ -402,7 +404,7 @@ Install_MySQL_56()
     Echo_Blue "[+] Installing ${Mysql_Ver}..."
     rm -f /etc/my.cnf
     Tar_Cd ${Mysql_Ver}.tar.gz ${Mysql_Ver}
-    cmake -DCMAKE_INSTALL_PREFIX=/usr/local/mysql -DSYSCONFDIR=/etc -DWITH_MYISAM_STORAGE_ENGINE=1 -DWITH_INNOBASE_STORAGE_ENGINE=1 -DWITH_PARTITION_STORAGE_ENGINE=1 -DWITH_FEDERATED_STORAGE_ENGINE=1 -DEXTRA_CHARSETS=all -DDEFAULT_CHARSET=utf8mb4 -DDEFAULT_COLLATION=utf8mb4_general_ci -DWITH_EMBEDDED_SERVER=1 -DENABLED_LOCAL_INFILE=1 ${MySQL55MAOpt}
+    cmake -DCMAKE_INSTALL_PREFIX=/usr/local/mysql -DSYSCONFDIR=/etc -DWITH_MYISAM_STORAGE_ENGINE=1 -DWITH_INNOBASE_STORAGE_ENGINE=1 -DWITH_PARTITION_STORAGE_ENGINE=1 -DWITH_FEDERATED_STORAGE_ENGINE=1 -DEXTRA_CHARSETS=all -DDEFAULT_CHARSET=utf8mb4 -DDEFAULT_COLLATION=utf8mb4_general_ci -DWITH_EMBEDDED_SERVER=1 -DENABLED_LOCAL_INFILE=1
     Make_Install
 
     groupadd mysql
@@ -497,6 +499,8 @@ write_buffer = 2M
 
 [mysqlhotcopy]
 interactive-timeout
+
+${MySQLMAOpt}
 EOF
 
     if [ "${InstallInnodb}" = "y" ]; then
@@ -531,7 +535,7 @@ Install_MySQL_57()
     Echo_Blue "[+] Installing ${Mysql_Ver}..."
     rm -f /etc/my.cnf
     Tar_Cd ${Mysql_Ver}.tar.gz ${Mysql_Ver}
-    cmake -DCMAKE_INSTALL_PREFIX=/usr/local/mysql -DSYSCONFDIR=/etc -DWITH_MYISAM_STORAGE_ENGINE=1 -DWITH_INNOBASE_STORAGE_ENGINE=1 -DWITH_PARTITION_STORAGE_ENGINE=1 -DWITH_FEDERATED_STORAGE_ENGINE=1 -DEXTRA_CHARSETS=all -DDEFAULT_CHARSET=utf8mb4 -DDEFAULT_COLLATION=utf8mb4_general_ci -DWITH_EMBEDDED_SERVER=1 -DENABLED_LOCAL_INFILE=1 -DWITH_BOOST=${cur_dir}/src/${Boost_Ver} ${MySQL55MAOpt}
+    cmake -DCMAKE_INSTALL_PREFIX=/usr/local/mysql -DSYSCONFDIR=/etc -DWITH_MYISAM_STORAGE_ENGINE=1 -DWITH_INNOBASE_STORAGE_ENGINE=1 -DWITH_PARTITION_STORAGE_ENGINE=1 -DWITH_FEDERATED_STORAGE_ENGINE=1 -DEXTRA_CHARSETS=all -DDEFAULT_CHARSET=utf8mb4 -DDEFAULT_COLLATION=utf8mb4_general_ci -DWITH_EMBEDDED_SERVER=1 -DENABLED_LOCAL_INFILE=1 -DWITH_BOOST=${cur_dir}/src/${Boost_Ver}
     Make_Install
 
     groupadd mysql
@@ -573,44 +577,16 @@ server-id   = 1
 expire_logs_days = 10
 early-plugin-load = ""
 
-#loose-innodb-trx=0
-#loose-innodb-locks=0
-#loose-innodb-lock-waits=0
-#loose-innodb-cmp=0
-#loose-innodb-cmp-per-index=0
-#loose-innodb-cmp-per-index-reset=0
-#loose-innodb-cmp-reset=0
-#loose-innodb-cmpmem=0
-#loose-innodb-cmpmem-reset=0
-#loose-innodb-buffer-page=0
-#loose-innodb-buffer-page-lru=0
-#loose-innodb-buffer-pool-stats=0
-#loose-innodb-metrics=0
-#loose-innodb-ft-default-stopword=0
-#loose-innodb-ft-inserted=0
-#loose-innodb-ft-deleted=0
-#loose-innodb-ft-being-deleted=0
-#loose-innodb-ft-config=0
-#loose-innodb-ft-index-cache=0
-#loose-innodb-ft-index-table=0
-#loose-innodb-sys-tables=0
-#loose-innodb-sys-tablestats=0
-#loose-innodb-sys-indexes=0
-#loose-innodb-sys-columns=0
-#loose-innodb-sys-fields=0
-#loose-innodb-sys-foreign=0
-#loose-innodb-sys-foreign-cols=0
-
 default_storage_engine = InnoDB
-#innodb_file_per_table = 1
-#innodb_data_home_dir = ${MySQL_Data_Dir}
-#innodb_data_file_path = ibdata1:10M:autoextend
-#innodb_log_group_home_dir = ${MySQL_Data_Dir}
-#innodb_buffer_pool_size = 16M
-#innodb_log_file_size = 5M
-#innodb_log_buffer_size = 8M
-#innodb_flush_log_at_trx_commit = 1
-#innodb_lock_wait_timeout = 50
+innodb_file_per_table = 1
+innodb_data_home_dir = ${MySQL_Data_Dir}
+innodb_data_file_path = ibdata1:10M:autoextend
+innodb_log_group_home_dir = ${MySQL_Data_Dir}
+innodb_buffer_pool_size = 16M
+innodb_log_file_size = 5M
+innodb_log_buffer_size = 8M
+innodb_flush_log_at_trx_commit = 1
+innodb_lock_wait_timeout = 50
 
 [mysqldump]
 quick
@@ -627,15 +603,10 @@ write_buffer = 2M
 
 [mysqlhotcopy]
 interactive-timeout
+
+${MySQLMAOpt}
 EOF
 
-    if [ "${InstallInnodb}" = "y" ]; then
-        sed -i 's/^#innodb/innodb/g' /etc/my.cnf
-    else
-        sed -i '/^default_storage_engine/d' /etc/my.cnf
-        sed -i '/skip-external-locking/i\innodb=OFF\nignore-builtin-innodb\nskip-innodb\ndefault_storage_engine = MyISAM\ndefault_tmp_storage_engine = MyISAM' /etc/my.cnf
-        sed -i 's/^#loose-innodb/loose-innodb/g' /etc/my.cnf
-    fi
     MySQL_Opt
     Check_MySQL_Data_Dir
     chown -R mysql:mysql ${MySQL_Data_Dir}
@@ -703,44 +674,16 @@ server-id   = 1
 binlog_expire_logs_seconds = 864000
 early-plugin-load = ""
 
-#loose-innodb-trx=0
-#loose-innodb-locks=0
-#loose-innodb-lock-waits=0
-#loose-innodb-cmp=0
-#loose-innodb-cmp-per-index=0
-#loose-innodb-cmp-per-index-reset=0
-#loose-innodb-cmp-reset=0
-#loose-innodb-cmpmem=0
-#loose-innodb-cmpmem-reset=0
-#loose-innodb-buffer-page=0
-#loose-innodb-buffer-page-lru=0
-#loose-innodb-buffer-pool-stats=0
-#loose-innodb-metrics=0
-#loose-innodb-ft-default-stopword=0
-#loose-innodb-ft-inserted=0
-#loose-innodb-ft-deleted=0
-#loose-innodb-ft-being-deleted=0
-#loose-innodb-ft-config=0
-#loose-innodb-ft-index-cache=0
-#loose-innodb-ft-index-table=0
-#loose-innodb-sys-tables=0
-#loose-innodb-sys-tablestats=0
-#loose-innodb-sys-indexes=0
-#loose-innodb-sys-columns=0
-#loose-innodb-sys-fields=0
-#loose-innodb-sys-foreign=0
-#loose-innodb-sys-foreign-cols=0
-
 default_storage_engine = InnoDB
-#innodb_file_per_table = 1
-#innodb_data_home_dir = ${MySQL_Data_Dir}
-#innodb_data_file_path = ibdata1:10M:autoextend
-#innodb_log_group_home_dir = ${MySQL_Data_Dir}
-#innodb_buffer_pool_size = 16M
-#innodb_log_file_size = 5M
-#innodb_log_buffer_size = 8M
-#innodb_flush_log_at_trx_commit = 1
-#innodb_lock_wait_timeout = 50
+innodb_file_per_table = 1
+innodb_data_home_dir = ${MySQL_Data_Dir}
+innodb_data_file_path = ibdata1:10M:autoextend
+innodb_log_group_home_dir = ${MySQL_Data_Dir}
+innodb_buffer_pool_size = 16M
+innodb_log_file_size = 5M
+innodb_log_buffer_size = 8M
+innodb_flush_log_at_trx_commit = 1
+innodb_lock_wait_timeout = 50
 
 [mysqldump]
 quick
@@ -757,15 +700,10 @@ write_buffer = 2M
 
 [mysqlhotcopy]
 interactive-timeout
+
+${MySQLMAOpt}
 EOF
 
-    if [ "${InstallInnodb}" = "y" ]; then
-        sed -i 's/^#innodb/innodb/g' /etc/my.cnf
-    else
-        sed -i '/^default_storage_engine/d' /etc/my.cnf
-        sed -i '/skip-external-locking/i\innodb=OFF\nignore-builtin-innodb\nskip-innodb\ndefault_storage_engine = MyISAM\ndefault_tmp_storage_engine = MyISAM' /etc/my.cnf
-        sed -i 's/^#loose-innodb/loose-innodb/g' /etc/my.cnf
-    fi
     MySQL_Opt
     Check_MySQL_Data_Dir
     chown -R mysql:mysql ${MySQL_Data_Dir}
