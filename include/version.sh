@@ -53,9 +53,9 @@ elif [ "${PHPSelect}" = "5" ]; then
 elif [ "${PHPSelect}" = "6" ]; then
     Php_Ver='php-7.0.30'
 elif [ "${PHPSelect}" = "7" ]; then
-    Php_Ver='php-7.1.17'
+    Php_Ver='php-7.1.18'
 elif [ "${PHPSelect}" = "8" ]; then
-    Php_Ver='php-7.2.5'
+    Php_Ver='php-7.2.6'
 fi
 if [[ "${PHPSelect}" =~ ^[123]$ ]]; then
     PhpMyAdmin_Ver='phpMyAdmin-4.0.10.20-all-languages'
@@ -73,7 +73,7 @@ fi
 Pureftpd_Ver='pure-ftpd-1.0.47'
 
 XCache_Ver='xcache-3.2.0'
-ImageMagick_Ver='ImageMagick-7.0.7-25'
+ImageMagick_Ver='ImageMagick-7.0.7-35'
 Imagick_Ver='imagick-3.4.3'
 ZendOpcache_Ver='zendopcache-7.0.5'
 Redis_Stable_Ver='redis-4.0.9'
