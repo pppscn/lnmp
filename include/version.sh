@@ -36,9 +36,9 @@ elif [ "${DBSelect}" = "6" ]; then
 elif [ "${DBSelect}" = "7" ]; then
     Mariadb_Ver='mariadb-10.0.35'
 elif [ "${DBSelect}" = "8" ]; then
-    Mariadb_Ver='mariadb-10.1.33'
+    Mariadb_Ver='mariadb-10.1.34'
 elif [ "${DBSelect}" = "9" ]; then
-    Mariadb_Ver='mariadb-10.2.14'
+    Mariadb_Ver='mariadb-10.2.16'
 fi
 if [ "${PHPSelect}" = "1" ]; then
     Php_Ver='php-5.2.17'
