@@ -93,7 +93,10 @@ Select_PHP()
         if [[ -s /usr/local/php7.1/sbin/php-fpm && -s /usr/local/nginx/conf/enable-php7.1.conf && -s /etc/init.d/php-fpm7.1 ]]; then
             Echo_Green "8: PHP 7.1 [found]"
         fi
-        Echo_Yellow "Enter your choice (1, 2, 3, 4, 5, 6 ,7 or 8): "
+        if [[ -s /usr/local/php7.2/sbin/php-fpm && -s /usr/local/nginx/conf/enable-php7.2.conf && -s /etc/init.d/php-fpm7.2 ]]; then
+            Echo_Green "9: PHP 7.2 [found]"
+        fi
+        Echo_Yellow "Enter your choice (1, 2, 3, 4, 5, 6 ,7 ,8 or 9): "
         read php_select
         case "${php_select}" in
             1)
@@ -135,6 +138,11 @@ Select_PHP()
                 echo "Current selection:: PHP `/usr/local/php7.1/bin/php-config --version`"
                 PHP_Path='/usr/local/php7.1'
                 PHPFPM_Initd='/etc/init.d/php-fpm7.1'
+                ;;
+            9)
+                echo "Current selection:: PHP `/usr/local/php7.2/bin/php-config --version`"
+                PHP_Path='/usr/local/php7.2'
+                PHPFPM_Initd='/etc/init.d/php-fpm7.2'
                 ;;
             *)
                 echo "Default,Current selection: PHP ${Cur_PHP_Version}"
