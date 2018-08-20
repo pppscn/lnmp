@@ -289,6 +289,8 @@ pm.max_children = 10
 pm.start_servers = 2
 pm.min_spare_servers = 1
 pm.max_spare_servers = 6
+pm.max_requests = 1024
+pm.process_idle_timeout = 10s
 request_terminate_timeout = 100
 request_slowlog_timeout = 0
 slowlog = var/log/slow.log
@@ -381,6 +383,8 @@ pm.max_children = 10
 pm.start_servers = 2
 pm.min_spare_servers = 1
 pm.max_spare_servers = 6
+pm.max_requests = 1024
+pm.process_idle_timeout = 10s
 request_terminate_timeout = 100
 request_slowlog_timeout = 0
 slowlog = var/log/slow.log
@@ -492,6 +496,8 @@ pm.max_children = 10
 pm.start_servers = 2
 pm.min_spare_servers = 1
 pm.max_spare_servers = 6
+pm.max_requests = 1024
+pm.process_idle_timeout = 10s
 request_terminate_timeout = 100
 request_slowlog_timeout = 0
 slowlog = var/log/slow.log
@@ -563,6 +569,8 @@ pm.max_children = 10
 pm.start_servers = 2
 pm.min_spare_servers = 1
 pm.max_spare_servers = 6
+pm.max_requests = 1024
+pm.process_idle_timeout = 10s
 request_terminate_timeout = 100
 request_slowlog_timeout = 0
 slowlog = var/log/slow.log
@@ -636,6 +644,8 @@ pm.max_children = 10
 pm.start_servers = 2
 pm.min_spare_servers = 1
 pm.max_spare_servers = 6
+pm.max_requests = 1024
+pm.process_idle_timeout = 10s
 request_terminate_timeout = 100
 request_slowlog_timeout = 0
 slowlog = var/log/slow.log
@@ -656,8 +666,6 @@ fi
 Upgrade_PHP()
 {
     Start_Upgrade_PHP
-    PHP_with_curl
-    PHP_with_openssl
     if echo "${php_version}" | grep -Eqi '^5.2.';then
         Upgrade_PHP_52
     elif echo "${php_version}" | grep -Eqi '^5.3.';then
