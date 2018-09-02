@@ -348,7 +348,7 @@ Install_Mhash()
 
 Install_Freetype()
 {
-    if [[ "${DISTRO}" = "Ubuntu" && "${Ubuntu_Version}" = "18.04" ]]; then
+    if [[ "${DISTRO}" = "Ubuntu" && "${Ubuntu_Version}" = "18.04" ]] || grep -Eqi "Mint 19" /etc/issue || grep -Eqi "Deepin GNU/Linux 15.7" /etc/issue; then
         Download_Files ${Download_Mirror}/lib/freetype/${Freetype_New_Ver}.tar.bz2 ${Freetype_New_Ver}.tar.bz2
         Echo_Blue "[+] Installing ${Freetype_New_Ver}"
         Tarj_Cd ${Freetype_New_Ver}.tar.bz2 ${Freetype_New_Ver}
@@ -582,6 +582,10 @@ Deb_Lib_Opt()
 
     if [ -d /usr/include/arm-linux-gnueabihf/curl ]; then
         ln -sf /usr/include/arm-linux-gnueabihf/curl /usr/include/
+    fi
+
+    if [ -d /usr/include/aarch64-linux-gnu/curl ]; then
+        ln -sf /usr/include/aarch64-linux-gnu/curl /usr/include/
     fi
 
     ldconfig
