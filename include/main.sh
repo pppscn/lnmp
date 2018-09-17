@@ -1,7 +1,7 @@
 #!/bin/bash
 
 DB_Info=('MySQL 5.1.73' 'MySQL 5.5.60' 'MySQL 5.6.40' 'MySQL 5.7.22' 'MySQL 8.0.11' 'MariaDB 5.5.60' 'MariaDB 10.0.35' 'MariaDB 10.1.34' 'MariaDB 10.2.16')
-PHP_Info=('PHP 5.2.17' 'PHP 5.3.29' 'PHP 5.4.45' 'PHP 5.5.38' 'PHP 5.6.36' 'PHP 7.0.31' 'PHP 7.1.20' 'PHP 7.2.8')
+PHP_Info=('PHP 5.2.17' 'PHP 5.3.29' 'PHP 5.4.45' 'PHP 5.5.38' 'PHP 5.6.38' 'PHP 7.0.32' 'PHP 7.1.22' 'PHP 7.2.10')
 Apache_Info=('Apache 2.2.34' 'Apache 2.4.33')
 
 Database_Selection()
