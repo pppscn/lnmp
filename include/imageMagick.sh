@@ -35,6 +35,7 @@ Install_ImageMagic()
             #Tarj_Cd ${ImageMagick_Ver}.tar.bz2 ${ImageMagick_Ver}
             Download_Files https://imagemagick.org/download/ImageMagick.tar.gz
             tar xvzf ImageMagick.tar.gz
+            cd ${ImageMagick_Ver}
         fi
 
         ./configure --prefix=/usr/local/imagemagick
