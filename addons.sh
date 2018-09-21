@@ -194,6 +194,9 @@ Select_PHP
             8|ion[cC]ube)
                 Install_ionCube
                 ;;
+            9|[nN]ghttp2)
+                Install_Nghttp2
+                ;;
             [eE][xX][iI][tT])
                 exit 1
                 ;;
