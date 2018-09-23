@@ -451,7 +451,11 @@ Install_Icu4c()
 
 Install_Boost()
 {
-    Echo_Blue "[+] Installing ${Boost_Ver}"
+    if [ "${DBSelect}" = "4" ] || echo "${mysql_version}" | grep -Eqi '^5.7.'; then
+        Echo_Blue "[+] Installing ${Boost_Ver}"
+    elif [ "${DBSelect}" = "5" ] || echo "${mysql_version}" | grep -Eqi '^8.0.'; then
+        Echo_Blue "[+] Installing ${Boost_New_Ver}"
+    fi
     if [ "$PM" = "yum" ]; then
         yum -y install python-devel
     elif [ "$PM" = "apt" ]; then
