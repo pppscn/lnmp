@@ -38,9 +38,10 @@ Display_Addons_Menu()
     echo "7: imageMagick"
     echo "##### encryption/decryption utility for PHP #####"
     echo "8: ionCube Loader"
+    echo "9: Nghttp2"
     echo "exit: Exit current script"
     echo "#####################################################"
-    read -p "Enter your choice (1, 2, 3, 4, 5, 6, 7, 8 or exit): " action2
+    read -p "Enter your choice (1, 2, 3, 4, 5, 6, 7, 8, 9 or exit): " action2
 }
 
 Restart_PHP()
@@ -201,7 +202,7 @@ Select_PHP
                 exit 1
                 ;;
             *)
-                echo "Usage: ./addons.sh {install|uninstall} {eaccelerator|xcache|memcached|opcache|redis|imagemagick|ioncube}"
+                echo "Usage: ./addons.sh {install|uninstall} {eaccelerator|xcache|memcached|opcache|redis|imagemagick|ioncube|nghttp2}"
                 ;;
         esac
         ;;
@@ -231,8 +232,11 @@ Select_PHP
             ion[cC]ube)
                 Uninstall_ionCube
                 ;;
+            [nN]ghttp2)
+                Uninstall_Nghttp2
+                ;;
             *)
-                echo "Usage: ./addons.sh {install|uninstall} {eaccelerator|xcache|memcached|opcache|redis|apcu|imagemagick|ioncube}"
+                echo "Usage: ./addons.sh {install|uninstall} {eaccelerator|xcache|memcached|opcache|redis|apcu|imagemagick|ioncube|nghttp2}"
                 ;;
         esac
         ;;

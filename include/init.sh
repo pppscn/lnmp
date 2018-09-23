@@ -500,6 +500,15 @@ Install_Nghttp2()
     fi
 }
 
+ Uninstall_Nghttp2()
+ {
+    echo "You will uninstall Nghttp2..."
+    Press_Start
+    rm -rf /usr/local/nghttp2
+    Restart_PHP
+    Echo_Green "Uninstall Nghttp2 completed."
+ }
+
 CentOS_Lib_Opt()
 {
     if [ "${Is_64bit}" = "y" ] ; then
