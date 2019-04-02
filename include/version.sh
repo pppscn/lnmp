@@ -14,7 +14,7 @@ TCMalloc_Ver='gperftools-2.7'
 Libunwind_Ver='libunwind-1.2.1'
 Libicu4c_Ver='icu4c-63_1'
 Boost_Ver='boost_1_59_0'
-Boost_New_Ver='boost_1_67_0'
+Boost_New_Ver='boost_1_68_0'
 Openssl_Ver='openssl-1.0.2q'
 Nghttp2_Ver='nghttp2-1.35.1'
 Luajit_Ver='LuaJIT-2.0.5'
@@ -60,7 +60,7 @@ fi
 if [[ "${PHPSelect}" =~ ^[123]$ ]]; then
     PhpMyAdmin_Ver='phpMyAdmin-4.0.10.20-all-languages'
 else
-    PhpMyAdmin_Ver='phpMyAdmin-4.8.4-all-languages'
+    PhpMyAdmin_Ver='phpMyAdmin-4.8.5-all-languages'
 fi
 APR_Ver='apr-1.6.5'
 APR_Util_Ver='apr-util-1.6.1'
