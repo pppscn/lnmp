@@ -10,7 +10,7 @@ Set_Timezone()
 CentOS_InstallNTP()
 {
     Echo_Blue "[+] Installing ntp..."
-    yum install -y ntp
+    yum install -y ntpdate
     ntpdate -u pool.ntp.org
     date
     start_time=$(date +%s)
@@ -31,15 +31,20 @@ CentOS_RemoveAMP()
     Echo_Blue "[-] Yum remove packages..."
     rpm -qa|grep httpd
     rpm -e httpd httpd-tools --nodeps
-    rpm -qa|grep mysql
-    rpm -e mysql mysql-libs --nodeps
+    if [[ "${DBSelect}" != "0" ]]; then
+        yum -y remove mysql-server mysql mysql-libs mariadb-server mariadb mariadb-libs
+        rpm -qa|grep mysql
+        if [ $? -ne 0 ]; then
+            rpm -e mysql mysql-libs --nodeps
+            rpm -e mariadb mariadb-libs --nodeps
+        fi
+    fi
     rpm -qa|grep php
     rpm -e php-mysql php-cli php-gd php-common php --nodeps
 
     Remove_Error_Libcurl
 
     yum -y remove httpd*
-    yum -y remove mysql-server mysql mysql-libs
     yum -y remove php*
     yum clean all
 }
@@ -48,13 +53,18 @@ Deb_RemoveAMP()
 {
     Echo_Blue "[-] apt-get remove packages..."
     apt-get update -y
-    for removepackages in apache2 apache2-doc apache2-utils apache2.2-common apache2.2-bin apache2-mpm-prefork apache2-doc apache2-mpm-worker mysql-client mysql-server mysql-common mysql-server-core-5.5 mysql-client-5.5 php5 php5-common php5-cgi php5-cli php5-mysql php5-curl php5-gd;
+    for removepackages in apache2 apache2-doc apache2-utils apache2.2-common apache2.2-bin apache2-mpm-prefork apache2-doc apache2-mpm-worker php5 php5-common php5-cgi php5-cli php5-mysql php5-curl php5-gd;
     do apt-get purge -y $removepackages; done
+    if [[ "${DBSelect}" != "0" ]]; then
+        for removepackages in mysql-client mysql-server mysql-common mysql-server-core-5.5 mysql-client-5.5 mariadb-client mariadb-server mariadb-common;
+        do apt-get purge -y $removepackages; done
+        dpkg -l |grep mysql
+        dpkg -P mysql-server mysql-common libmysqlclient15off libmysqlclient15-dev
+        dpkg -P mariadb-client mariadb-server mariadb-common
+    fi
     killall apache2
     dpkg -l |grep apache
     dpkg -P apache2 apache2-doc apache2-mpm-prefork apache2-utils apache2.2-common
-    dpkg -l |grep mysql
-    dpkg -P mysql-server mysql-common libmysqlclient15off libmysqlclient15-dev
     dpkg -l |grep php
     dpkg -P php5 php5-common php5-cli php5-cgi php5-mysql php5-curl php5-gd
     apt-get autoremove -y && apt-get clean
@@ -142,6 +152,8 @@ Ubuntu_Modify_Source()
         Ubuntu_Deadline artful
     elif grep -Eqi "16.04" /etc/*-release || echo "${Ubuntu_Version}" | grep -Eqi '^16.04'; then
         Ubuntu_Deadline xenial
+    elif grep -Eqi "18.10" /etc/*-release || echo "${Ubuntu_Version}" | grep -Eqi '^18.10'; then
+        Ubuntu_Deadline cosmic
     fi
     if [ "${CodeName}" != "" ]; then
         \cp /etc/apt/sources.list /etc/apt/sources.list.$(date +"%Y%m%d")
@@ -174,6 +186,7 @@ Ubuntu_Deadline()
     trusty_deadline=`date -d "2019-7-22 00:00:00" +%s`
     artful_deadline=`date -d "2018-7-31 00:00:00" +%s`
     xenial_deadline=`date -d "2021-4-30 00:00:00" +%s`
+    cosmic_deadline=`date -d "2019-7-30 00:00:00" +%s`
     cur_time=`date  +%s`
     case "$1" in
         trusty)
@@ -194,6 +207,12 @@ Ubuntu_Deadline()
                 Check_Old_Releases_URL xenial
             fi
             ;;
+        cosmic)
+            if [ ${cur_time} -gt ${cosmic_deadline} ]; then
+                echo "${cur_time} > ${cosmic_deadline}"
+                Check_Old_Releases_URL cosmic
+            fi
+            ;;
     esac
 }
 
@@ -205,7 +224,7 @@ CentOS_Dependent()
     fi
 
     Echo_Blue "[+] Yum installing dependent packages..."
-    for packages in make cmake gcc gcc-c++ gcc-g77 flex bison file libtool libtool-libs autoconf kernel-devel patch wget crontabs libjpeg libjpeg-devel libpng libpng-devel libpng10 libpng10-devel gd gd-devel libxml2 libxml2-devel zlib zlib-devel glib2 glib2-devel unzip tar bzip2 bzip2-devel libzip-devel libevent libevent-devel ncurses ncurses-devel curl curl-devel libcurl libcurl-devel e2fsprogs e2fsprogs-devel krb5 krb5-devel libidn libidn-devel openssl openssl-devel vim-minimal gettext gettext-devel ncurses-devel gmp-devel pspell-devel unzip libcap diffutils ca-certificates net-tools libc-client-devel psmisc libXpm-devel git-core c-ares-devel libicu-devel libxslt libxslt-devel xz expat-devel libaio-devel rpcgen libtirpc-devel perl;
+    for packages in make cmake gcc gcc-c++ gcc-g77 flex bison file libtool libtool-libs autoconf kernel-devel patch wget crontabs libjpeg libjpeg-devel libpng libpng-devel libpng10 libpng10-devel gd gd-devel libxml2 libxml2-devel zlib zlib-devel glib2 glib2-devel unzip tar bzip2 bzip2-devel libzip-devel libevent libevent-devel ncurses ncurses-devel curl curl-devel libcurl libcurl-devel e2fsprogs e2fsprogs-devel krb5 krb5-devel libidn libidn-devel openssl openssl-devel vim-minimal gettext gettext-devel ncurses-devel gmp-devel pspell-devel unzip libcap diffutils ca-certificates net-tools libc-client-devel psmisc libXpm-devel git-core c-ares-devel libicu-devel libxslt libxslt-devel xz expat-devel libaio-devel rpcgen libtirpc-devel perl python-devel cyrus-sasl-devel;
     do yum -y install $packages; done
 
     if [ -s /etc/yum.conf.lnmp ]; then
@@ -221,7 +240,7 @@ Deb_Dependent()
     apt-get -fy install
     export DEBIAN_FRONTEND=noninteractive
     apt-get --no-install-recommends install -y build-essential gcc g++ make
-    for packages in debian-keyring debian-archive-keyring build-essential gcc g++ make cmake autoconf automake re2c wget cron bzip2 libzip-dev libc6-dev bison file rcconf flex vim bison m4 gawk less cpp binutils diffutils unzip tar bzip2 libbz2-dev libncurses5 libncurses5-dev libtool libevent-dev openssl libssl-dev zlibc libsasl2-dev libltdl3-dev libltdl-dev zlib1g zlib1g-dev libbz2-1.0 libbz2-dev libglib2.0-0 libglib2.0-dev libpng3 libjpeg-dev libpng-dev libpng12-0 libpng12-dev libkrb5-dev curl libcurl3-gnutls libcurl4-gnutls-dev libcurl4-openssl-dev libpq-dev libpq5 gettext libpng12-dev libxml2-dev libcap-dev ca-certificates libc-client2007e-dev psmisc patch git libc-ares-dev libicu-dev e2fsprogs libxslt libxslt1-dev libc-client-dev xz-utils libexpat1-dev libaio-dev libtirpc-dev;
+    for packages in debian-keyring debian-archive-keyring build-essential gcc g++ make cmake autoconf automake re2c wget cron bzip2 libzip-dev libc6-dev bison file rcconf flex vim bison m4 gawk less cpp binutils diffutils unzip tar bzip2 libbz2-dev libncurses5 libncurses5-dev libtool libevent-dev openssl libssl-dev zlibc libsasl2-dev libltdl3-dev libltdl-dev zlib1g zlib1g-dev libbz2-1.0 libbz2-dev libglib2.0-0 libglib2.0-dev libpng3 libjpeg-dev libpng-dev libpng12-0 libpng12-dev libkrb5-dev curl libcurl3-gnutls libcurl4-gnutls-dev libcurl4-openssl-dev libpq-dev libpq5 gettext libpng12-dev libxml2-dev libcap-dev ca-certificates libc-client2007e-dev psmisc patch git libc-ares-dev libicu-dev e2fsprogs libxslt libxslt1-dev libc-client-dev xz-utils libexpat1-dev libaio-dev libtirpc-dev python-dev;
     do apt-get --no-install-recommends install -y $packages; done
 }
 
@@ -244,7 +263,7 @@ Check_Download()
     fi
     if [[ "${DBSelect}" =~ ^[12345]$ ]]; then
         Download_Files ${Download_Mirror}/datebase/mysql/${Mysql_Ver}.tar.gz ${Mysql_Ver}.tar.gz
-    elif [[ "${DBSelect}" =~ ^[6789]$ ]]; then
+    elif [[ "${DBSelect}" =~ ^[6789]|10$ ]]; then
         Download_Files ${Download_Mirror}/datebase/mariadb/${Mariadb_Ver}.tar.gz ${Mariadb_Ver}.tar.gz
     fi
     Download_Files ${Download_Mirror}/web/php/${Php_Ver}.tar.bz2 ${Php_Ver}.tar.bz2
@@ -348,16 +367,17 @@ Install_Mhash()
 
 Install_Freetype()
 {
-    if [[ "${DISTRO}" = "Ubuntu" && "${Ubuntu_Version}" = "18.04" ]] || grep -Eqi "Mint 19" /etc/issue || grep -Eqi "Deepin GNU/Linux 15.7" /etc/issue; then
+    if echo "${Ubuntu_Version}" | grep -Eqi "1[89]\." || echo "${Mint_Version}" | grep -Eqi "19\." || echo "${Deepin_Version}" | grep -Eqi "15\.[7-9]" || echo "${Debian_Version}" | grep -Eqi "9\."; then
         Download_Files ${Download_Mirror}/lib/freetype/${Freetype_New_Ver}.tar.bz2 ${Freetype_New_Ver}.tar.bz2
         Echo_Blue "[+] Installing ${Freetype_New_Ver}"
         Tarj_Cd ${Freetype_New_Ver}.tar.bz2 ${Freetype_New_Ver}
+        ./configure --prefix=/usr/local/freetype --enable-freetype-config
     else
         Download_Files ${Download_Mirror}/lib/freetype/${Freetype_Ver}.tar.bz2 ${Freetype_Ver}.tar.bz2
         Echo_Blue "[+] Installing ${Freetype_Ver}"
         Tarj_Cd ${Freetype_Ver}.tar.bz2 ${Freetype_Ver}
+        ./configure --prefix=/usr/local/freetype
     fi
-    ./configure --prefix=/usr/local/freetype
     Make_Install
 
     [[ -d /usr/lib/pkgconfig ]] && \cp /usr/local/freetype/lib/pkgconfig/freetype2.pc /usr/lib/pkgconfig/
@@ -377,10 +397,15 @@ Install_Curl()
         cd ${cur_dir}/src
         Download_Files ${Download_Mirror}/lib/curl/${Curl_Ver}.tar.bz2 ${Curl_Ver}.tar.bz2
         Tarj_Cd ${Curl_Ver}.tar.bz2 ${Curl_Ver}
-        ./configure --prefix=/usr/local/curl --enable-ares --without-nss --with-ssl
+        if [ -s /usr/local/openssl/bin/openssl ] || /usr/local/openssl/bin/openssl version | grep -Eqi 'OpenSSL 1.0.2'; then
+            ./configure --prefix=/usr/local/curl --enable-ares --without-nss --with-zlib --with-ssl=/usr/local/openssl
+        else
+            ./configure --prefix=/usr/local/curl --enable-ares --without-nss --with-zlib --with-ssl
+        fi
         Make_Install
         cd ${cur_dir}/src/
         rm -rf ${cur_dir}/src/${Curl_Ver}
+        ldconfig
     fi
     Remove_Error_Libcurl
 }
@@ -451,26 +476,29 @@ Install_Icu4c()
 
 Install_Boost()
 {
+    Echo_Blue "[+] Download or use exist boost..."
     if [ "${DBSelect}" = "4" ] || echo "${mysql_version}" | grep -Eqi '^5.7.'; then
-        Echo_Blue "[+] Installing ${Boost_Ver}"
+        if [ -s "${cur_dir}/src/${Boost_Ver}.tar.bz2" ]; then
+            [[ -d "${cur_dir}/src/${Boost_Ver}" ]] && rm -rf "${cur_dir}/src/${Boost_Ver}"
+            tar jxf ${cur_dir}/src/${Boost_Ver}.tar.bz2 -C ${cur_dir}/src
+            MySQL_WITH_BOOST="-DWITH_BOOST=${cur_dir}/src/${Boost_Ver}"
+        else
+            cd ${cur_dir}/src/
+            Download_Files ${Download_Mirror}/lib/boost/${Boost_Ver}.tar.bz2 ${Boost_Ver}.tar.bz2
+            tar jxf ${cur_dir}/src/${Boost_Ver}.tar.bz2
+            cd -
+            MySQL_WITH_BOOST="-DWITH_BOOST=${cur_dir}/src/${Boost_Ver}"
+        fi
     elif [ "${DBSelect}" = "5" ] || echo "${mysql_version}" | grep -Eqi '^8.0.'; then
-        Echo_Blue "[+] Installing ${Boost_New_Ver}"
+        Get_Boost_Ver=$(grep 'SET(BOOST_PACKAGE_NAME' cmake/boost.cmake |grep -oP '\d+(\_\d+){2}')
+        if [ -s "${cur_dir}/src/boost_${Get_Boost_Ver}.tar.bz2" ]; then
+            [[ -d "${cur_dir}/src/boost_${Get_Boost_Ver}" ]] && rm -rf "${cur_dir}/src/boost_${Get_Boost_Ver}"
+            tar jxf ${cur_dir}/src/boost_${Get_Boost_Ver}.tar.bz2 -C ${cur_dir}/src
+            MySQL_WITH_BOOST="-DWITH_BOOST=${cur_dir}/src/boost_${Get_Boost_Ver}"
+        else
+            MySQL_WITH_BOOST="-DDOWNLOAD_BOOST=1 -DWITH_BOOST=${cur_dir}/src"
+        fi
     fi
-    if [ "$PM" = "yum" ]; then
-        yum -y install python-devel
-    elif [ "$PM" = "apt" ]; then
-        apt-get update
-        apt-get install -y python-dev
-    fi
-    cd ${cur_dir}/src
-    if [ "${DBSelect}" = "4" ] || echo "${mysql_version}" | grep -Eqi '^5.7.'; then
-        Download_Files ${Download_Mirror}/lib/boost/${Boost_Ver}.tar.bz2 ${Boost_Ver}.tar.bz2
-        Tarj_Cd ${Boost_Ver}.tar.bz2 ${Boost_Ver}
-    elif [ "${DBSelect}" = "5" ] || echo "${mysql_version}" | grep -Eqi '^8.0.'; then
-        Download_Files ${Download_Mirror}/lib/boost/${Boost_New_Ver}.tar.bz2 ${Boost_New_Ver}.tar.bz2
-        Tarj_Cd ${Boost_New_Ver}.tar.bz2 ${Boost_New_Ver}
-    fi
-    cd ${cur_dir}/src
 }
 
 Install_Openssl()
@@ -489,6 +517,30 @@ Install_Openssl()
     fi
 }
 
+Install_Openssl_New()
+{
+    if openssl version | grep -vEqi "OpenSSL 1.1.1*"; then
+        if [ ! -s /usr/local/openssl1.1.1/bin/openssl ] || /usr/local/openssl1.1.1/bin/openssl version | grep -Eqi 'OpenSSL 1.1.1*'; then
+            Echo_Blue "[+] Installing ${Openssl_New_Ver}"
+            cd ${cur_dir}/src
+            Download_Files ${Download_Mirror}/lib/openssl/${Openssl_New_Ver}.tar.gz ${Openssl_New_Ver}.tar.gz
+            [[ -d "${Openssl_New_Ver}" ]] && rm -rf ${Openssl_New_Ver}
+            Tar_Cd ${Openssl_New_Ver}.tar.gz ${Openssl_New_Ver}
+            ./config enable-weak-ssl-ciphers -fPIC --prefix=/usr/local/openssl1.1.1 --openssldir=/usr/local/openssl1.1.1
+            make depend
+            Make_Install
+            ln -sf /usr/local/openssl1.1.1/lib/libcrypto.so.1.1 /usr/lib/
+            ln -sf /usr/local/openssl1.1.1/lib/libssl.so.1.1 /usr/lib/
+            cd ${cur_dir}/src/
+            rm -rf ${cur_dir}/src/${Openssl_New_Ver}
+        fi
+        ldconfig
+        apache_with_ssl='--with-ssl=/usr/local/openssl1.1.1'
+    else
+        apache_with_ssl='--with-ssl'
+    fi
+}
+
 Install_Nghttp2()
 {
     if [[ ! -s /usr/local/nghttp2/lib/libnghttp2.so || ! -s /usr/local/nghttp2/include/nghttp2/nghttp2.h ]]; then
@@ -503,15 +555,6 @@ Install_Nghttp2()
         rm -rf ${cur_dir}/src/${Nghttp2_Ver}
     fi
 }
-
- Uninstall_Nghttp2()
- {
-    echo "You will uninstall Nghttp2..."
-    Press_Start
-    rm -rf /usr/local/nghttp2
-    Restart_PHP
-    Echo_Green "Uninstall Nghttp2 completed."
- }
 
 CentOS_Lib_Opt()
 {
@@ -617,5 +660,58 @@ Remove_Error_Libcurl()
 {
     if [ -s /usr/local/lib/libcurl.so ]; then
         rm -f /usr/local/lib/libcurl*
+    fi
+}
+
+Add_Swap()
+{
+    if command -v python >/dev/null 2>&1; then
+        Disk_Avail=$(${cur_dir}/include/disk.py)
+    elif command -v python3 >/dev/null 2>&1; then
+        Disk_Avail=$(python3 ${cur_dir}/include/disk.py)
+    elif command -v python2 >/dev/null 2>&1; then
+        Disk_Avail=$(python2 ${cur_dir}/include/disk.py)
+    fi
+    if [ "${MemTotal}" -lt 1024 ]; then
+        DD_Count='1024'
+        if [ "${Disk_Avail}" -lt 5 ]; then
+            Enable_Swap='n'
+        fi
+    elif [[ "${MemTotal}" -ge 1024 && "${MemTotal}" -le 2048 ]]; then
+        DD_Count='2028'
+        if [ "${Disk_Avail}" -lt 13 ]; then
+            Enable_Swap='n'
+        fi
+    elif [[ "${MemTotal}" -ge 2048 && "${MemTotal}" -le 4096 ]]; then
+        DD_Count='4096'
+        if [ "${Disk_Avail}" -lt 17 ]; then
+            Enable_Swap='n'
+        fi
+    elif [[ "${MemTotal}" -ge 4096 && "${MemTotal}" -le 16384 ]]; then
+        DD_Count='8192'
+        if [ "${Disk_Avail}" -lt 19 ]; then
+            Enable_Swap='n'
+        fi
+    elif [[ "${MemTotal}" -ge 16384 ]]; then
+        DD_Count='16384'
+        if [ "${Disk_Avail}" -lt 27 ]; then
+            Enable_Swap='n'
+        fi
+    fi
+    Swap_Total=$(free -m | grep Swap | awk '{print  $2}')
+    if [[ "${Enable_Swap}" = "y" && "${Swap_Total}" -le 512 ]]; then
+        echo "Add Swap file..."
+        dd if=/dev/zero of=/var/swapfile bs=1M count=${DD_Count}
+        chmod 0600 /var/swapfile
+        echo "Enable Swap..."
+        /sbin/mkswap /var/swapfile
+        /sbin/swapon /var/swapfile
+        if [ $? -eq 0 ]; then
+            [ `grep -L '/var/swapfile'    '/etc/fstab'` ] && echo "/var/swapfile swap swap defaults 0 0" >>/etc/fstab
+            /sbin/swapon -s
+        else
+            rm -f /var/swapfile
+            echo "Add Swap Failed!"
+        fi
     fi
 }

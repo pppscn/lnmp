@@ -1,7 +1,7 @@
 #!/bin/bash
 
-DB_Info=('MySQL 5.1.73' 'MySQL 5.5.62' 'MySQL 5.6.42' 'MySQL 5.7.24' 'MySQL 8.0.15' 'MariaDB 5.5.62' 'MariaDB 10.0.37' 'MariaDB 10.1.37' 'MariaDB 10.2.19')
-PHP_Info=('PHP 5.2.17' 'PHP 5.3.29' 'PHP 5.4.45' 'PHP 5.5.38' 'PHP 5.6.40' 'PHP 7.0.33' 'PHP 7.1.27' 'PHP 7.2.16')
+DB_Info=('MySQL 5.1.73' 'MySQL 5.5.62' 'MySQL 5.6.42' 'MySQL 5.7.24' 'MySQL 8.0.13' 'MariaDB 5.5.62' 'MariaDB 10.0.37' 'MariaDB 10.1.37' 'MariaDB 10.2.19' 'MariaDB 10.3.11')
+PHP_Info=('PHP 5.2.17' 'PHP 5.3.29' 'PHP 5.4.45' 'PHP 5.5.38' 'PHP 5.6.40' 'PHP 7.0.33' 'PHP 7.1.27' 'PHP 7.2.16' 'PHP 7.3.3')
 Apache_Info=('Apache 2.2.34' 'Apache 2.4.37')
 
 Database_Selection()
@@ -9,7 +9,7 @@ Database_Selection()
 #which MySQL Version do you want to install?
     if [ -z ${DBSelect} ]; then
         DBSelect="2"
-        Echo_Yellow "You have 10 options for your DataBase install."
+        Echo_Yellow "You have 11 options for your DataBase install."
         echo "1: Install ${DB_Info[0]}"
         echo "2: Install ${DB_Info[1]} (Default)"
         echo "3: Install ${DB_Info[2]}"
@@ -19,8 +19,9 @@ Database_Selection()
         echo "7: Install ${DB_Info[6]}"
         echo "8: Install ${DB_Info[7]}"
         echo "9: Install ${DB_Info[8]}"
+        echo "10: Install ${DB_Info[9]}"
         echo "0: DO NOT Install MySQL/MariaDB"
-        read -p "Enter your choice (1, 2, 3, 4, 5, 6, 7, 8, 9 or 0): " DBSelect
+        read -p "Enter your choice (1, 2, 3, 4, 5, 6, 7, 8, 9, 10 or 0): " DBSelect
     fi
 
     case "${DBSelect}" in
@@ -51,6 +52,9 @@ Database_Selection()
     9)
         echo "You will install ${DB_Info[8]}"
         ;;
+    10)
+        echo "You will install ${DB_Info[9]}"
+        ;;
     0)
         echo "Do not install MySQL/MariaDB!"
         ;;
@@ -59,12 +63,12 @@ Database_Selection()
         DBSelect="2"
     esac
 
-    if [[ "${DBSelect}" =~ ^[345789]$ ]] && [ `free -m | grep Mem | awk '{print  $2}'` -le 1024 ]; then
-        echo "Memory less than 1GB, can't install MySQL 5.6+ or MairaDB 10+!"
+    if [[ "${DBSelect}" =~ ^5|10$ ]] && [ `free -m | grep Mem | awk '{print  $2}'` -le 1024 ]; then
+        echo "Memory less than 1GB, can't install MySQL 8.0 or MairaDB 10.3!"
         exit 1
     fi
 
-    if [[ "${DBSelect}" =~ ^[6789]$ ]]; then
+    if [[ "${DBSelect}" =~ ^[6789]|10$ ]]; then
         MySQL_Bin="/usr/local/mariadb/bin/mysql"
         MySQL_Config="/usr/local/mariadb/bin/mysql_config"
         MySQL_Dir="/usr/local/mariadb"
@@ -120,7 +124,7 @@ PHP_Selection()
         echo "==========================="
 
         PHPSelect="3"
-        Echo_Yellow "You have 8 options for your PHP install."
+        Echo_Yellow "You have 9 options for your PHP install."
         echo "1: Install ${PHP_Info[0]}"
         echo "2: Install ${PHP_Info[1]}"
         echo "3: Install ${PHP_Info[2]}"
@@ -129,7 +133,8 @@ PHP_Selection()
         echo "6: Install ${PHP_Info[5]}"
         echo "7: Install ${PHP_Info[6]}"
         echo "8: Install ${PHP_Info[7]}"
-        read -p "Enter your choice (1, 2, 3, 4, 5, 6, 7 or 8): " PHPSelect
+        echo "9: Install ${PHP_Info[8]}"
+        read -p "Enter your choice (1, 2, 3, 4, 5, 6, 7, 8 or 9): " PHPSelect
     fi
 
     case "${PHPSelect}" in
@@ -160,6 +165,9 @@ PHP_Selection()
         ;;
     8)
         echo "You will install ${PHP_Info[7]}"
+        ;;
+    9)
+        echo "You will install ${PHP_Info[8]}"
         ;;
     *)
         echo "No input,You will install ${PHP_Info[4]}"
@@ -265,13 +273,13 @@ Apache_Selection()
 Kill_PM()
 {
     if ps aux | grep "yum" | grep -qv "grep"; then
-        if [ -s /usr/bin/killall ]; then
+        if command -v killall >/dev/null 2>&1; then
             killall yum
         else
             kill `pidof yum`
         fi
     elif ps aux | grep "apt-get" | grep -qv "grep"; then
-        if [ -s /usr/bin/killall ]; then
+        if command -v killall >/dev/null 2>&1; then
             killall apt-get
         else
             kill `pidof apt-get`
@@ -316,10 +324,10 @@ Install_LSB()
 
 Get_Dist_Version()
 {
-    if [ -s /usr/bin/python3 ]; then
-        eval ${DISTRO}_Version=`/usr/bin/python3 -c 'import platform; print(platform.linux_distribution()[1])'`
-    elif [ -s /usr/bin/python2 ]; then
-        eval ${DISTRO}_Version=`/usr/bin/python2 -c 'import platform; print platform.linux_distribution()[1]'`
+    if command -v python2 >/dev/null 2>&1; then
+        eval ${DISTRO}_Version=$(python2 -c 'import platform; print platform.linux_distribution()[1]')
+    elif command -v python3 >/dev/null 2>&1; then
+        eval ${DISTRO}_Version=$(python3 -c 'import platform; print(platform.linux_distribution()[1])')
     fi
     if [ $? -ne 0 ]; then
         Install_LSB
@@ -421,8 +429,10 @@ Tar_Cd()
     [[ -d "${DirName}" ]] && rm -rf ${DirName}
     echo "Uncompress ${FileName}..."
     tar zxf ${FileName}
-    echo "cd ${DirName}..."
-    cd ${DirName}
+    if [ -n "${DirName}" ]; then
+        echo "cd ${DirName}..."
+        cd ${DirName}
+    fi
 }
 
 Tarj_Cd()
@@ -433,8 +443,10 @@ Tarj_Cd()
     [[ -d "${DirName}" ]] && rm -rf ${DirName}
     echo "Uncompress ${FileName}..."
     tar jxf ${FileName}
-    echo "cd ${DirName}..."
-    cd ${DirName}
+    if [ -n "${DirName}" ]; then
+        echo "cd ${DirName}..."
+        cd ${DirName}
+    fi
 }
 
 Check_LNMPConf()
@@ -462,7 +474,7 @@ Print_APP_Ver()
 
     if [[ "${DBSelect}" =~ ^[12345]$ ]]; then
         echo "${Mysql_Ver}"
-    elif [[ "${DBSelect}" =~ ^[6789]$ ]]; then
+    elif [[ "${DBSelect}" =~ ^[6789]|10$ ]]; then
         echo "${Mariadb_Ver}"
     elif [ "${DBSelect}" = "0" ]; then
         echo "Do not install MySQL/MariaDB!"
@@ -492,7 +504,7 @@ Print_APP_Ver()
     fi
     if [[ "${DBSelect}" =~ ^[12345]$ ]]; then
         echo "Database Directory: ${MySQL_Data_Dir}"
-    elif [[ "${DBSelect}" =~ ^[6789]$ ]]; then
+    elif [[ "${DBSelect}" =~ ^[6789]|10$ ]]; then
         echo "Database Directory: ${MariaDB_Data_Dir}"
     elif [ "${DBSelect}" = "0" ]; then
         echo "Do not install MySQL/MariaDB!"
@@ -502,6 +514,7 @@ Print_APP_Ver()
 
 Print_Sys_Info()
 {
+    echo "LNMP Version: ${LNMP_Ver}"
     eval echo "${DISTRO} \${${DISTRO}_Version}"
     cat /etc/issue
     cat /etc/*-release
@@ -509,6 +522,7 @@ Print_Sys_Info()
     MemTotal=`free -m | grep Mem | awk '{print  $2}'`
     echo "Memory is: ${MemTotal} MB "
     df -h
+    openssl version
 }
 
 StartUp()
@@ -537,7 +551,7 @@ Remove_StartUp()
 
 Check_Mirror()
 {
-    if [ ! -s /usr/bin/curl ]; then
+    if ! command -v curl >/dev/null 2>&1; then
         if [ "$PM" = "yum" ]; then
             yum install -y curl
         elif [ "$PM" = "apt" ]; then

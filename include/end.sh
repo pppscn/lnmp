@@ -3,32 +3,34 @@
 Add_Iptables_Rules()
 {
     #add iptables firewall rules
-    if [ -s /sbin/iptables ]; then
-        /sbin/iptables -I INPUT 1 -i lo -j ACCEPT
-        /sbin/iptables -I INPUT 2 -m state --state ESTABLISHED,RELATED -j ACCEPT
-        /sbin/iptables -I INPUT 3 -p tcp --dport 22 -j ACCEPT
-        /sbin/iptables -I INPUT 4 -p tcp --dport 80 -j ACCEPT
-        /sbin/iptables -I INPUT 5 -p tcp --dport 443 -j ACCEPT
-        /sbin/iptables -I INPUT 6 -p tcp --dport 3306 -j DROP
-        /sbin/iptables -I INPUT 7 -p icmp -m icmp --icmp-type 8 -j ACCEPT
+    if command -v iptables >/dev/null 2>&1; then
+        iptables -I INPUT 1 -i lo -j ACCEPT
+        iptables -I INPUT 2 -m state --state ESTABLISHED,RELATED -j ACCEPT
+        iptables -I INPUT 3 -p tcp --dport 22 -j ACCEPT
+        iptables -I INPUT 4 -p tcp --dport 80 -j ACCEPT
+        iptables -I INPUT 5 -p tcp --dport 443 -j ACCEPT
+        iptables -I INPUT 6 -p tcp --dport 3306 -j DROP
+        iptables -I INPUT 7 -p icmp -m icmp --icmp-type 8 -j ACCEPT
         if [ "$PM" = "yum" ]; then
+            yum -y install iptables-services
             service iptables save
-            if [ -s /usr/sbin/firewalld ]; then
+            service iptables reload
+            if command -v firewalld >/dev/null 2>&1; then
                 systemctl stop firewalld
                 systemctl disable firewalld
             fi
+            StartUp iptables
         elif [ "$PM" = "apt" ]; then
-            iptables-save > /etc/iptables.rules
-            cat >/etc/network/if-post-down.d/iptables<<EOF
-#!/bin/bash
-iptables-save > /etc/iptables.rules
-EOF
-            chmod +x /etc/network/if-post-down.d/iptables
-            cat >/etc/network/if-pre-up.d/iptables<<EOF
-#!/bin/bash
-iptables-restore < /etc/iptables.rules
-EOF
-            chmod +x /etc/network/if-pre-up.d/iptables
+            apt-get --no-install-recommends install -y iptables-persistent
+            if [ -s /etc/init.d/netfilter-persistent ]; then
+                /etc/init.d/netfilter-persistent save
+                /etc/init.d/netfilter-persistent reload
+                StartUp netfilter-persistent
+            else
+                /etc/init.d/iptables-persistent save
+                /etc/init.d/iptables-persistent reload
+                StartUp iptables-persistent
+            fi
         fi
     fi
 }
@@ -40,7 +42,7 @@ Add_LNMP_Startup()
     chmod +x /bin/lnmp
     StartUp nginx
     /etc/init.d/nginx start
-    if [[ "${DBSelect}" =~ ^[6789]$ ]]; then
+    if [[ "${DBSelect}" =~ ^[6789]|10$ ]]; then
         StartUp mariadb
         /etc/init.d/mariadb start
         sed -i 's#/etc/init.d/mysql#/etc/init.d/mariadb#' /bin/lnmp
@@ -64,7 +66,7 @@ Add_LNMPA_Startup()
     chmod +x /bin/lnmp
     StartUp nginx
     /etc/init.d/nginx start
-    if [[ "${DBSelect}" =~ ^[6789]$ ]]; then
+    if [[ "${DBSelect}" =~ ^[6789]|10$ ]]; then
         StartUp mariadb
         /etc/init.d/mariadb start
         sed -i 's#/etc/init.d/mysql#/etc/init.d/mariadb#' /bin/lnmp
@@ -85,7 +87,7 @@ Add_LAMP_Startup()
     chmod +x /bin/lnmp
     StartUp httpd
     /etc/init.d/httpd start
-    if [[ "${DBSelect}" =~ ^[6789]$ ]]; then
+    if [[ "${DBSelect}" =~ ^[6789]|10$ ]]; then
         StartUp mariadb
         /etc/init.d/mariadb start
         sed -i 's#/etc/init.d/mysql#/etc/init.d/mariadb#' /bin/lnmp
@@ -113,7 +115,7 @@ Check_Nginx_Files()
 Check_DB_Files()
 {
     isDB=""
-    if [[ "${DBSelect}" =~ ^[6789]$ ]]; then
+    if [[ "${DBSelect}" =~ ^[6789]|10$ ]]; then
         if [[ -s /usr/local/mariadb/bin/mysql && -s /usr/local/mariadb/bin/mysqld_safe && -s /etc/my.cnf ]]; then
             Echo_Green "MariaDB: OK"
             isDB="ok"
@@ -157,7 +159,7 @@ Check_PHP_Files()
 Check_Apache_Files()
 {
     isApache=""
-    if [[ "${PHPSelect}" =~ ^[678]$ ]]; then
+    if [[ "${PHPSelect}" =~ ^[6789]$ ]]; then
         if [[ -s /usr/local/apache/bin/httpd && -s /usr/local/apache/modules/libphp7.so && -s /usr/local/apache/conf/httpd.conf ]]; then
             Echo_Green "Apache: OK"
             isApache="ok"
@@ -174,12 +176,12 @@ Check_Apache_Files()
     fi
 }
 
-Clean_Src_Dir()
+Clean_DB_Src_Dir()
 {
-    echo "Clean src directory..."
+    echo "Clean database src directory..."
     if [[ "${DBSelect}" =~ ^[12345]$ ]]; then
         rm -rf ${cur_dir}/src/${Mysql_Ver}
-    elif [[ "${DBSelect}" =~ ^[6789]$ ]]; then
+    elif [[ "${DBSelect}" =~ ^[6789]|10$ ]]; then
         rm -rf ${cur_dir}/src/${Mariadb_Ver}
     fi
     if [[ "${DBSelect}" = "4" ]]; then
@@ -187,7 +189,17 @@ Clean_Src_Dir()
     elif [[ "${DBSelect}" = "5" ]]; then
         rm -rf ${cur_dir}/src/${Boost_New_Ver}
     fi
+}
+
+Clean_PHP_Src_Dir()
+{
+    echo "Clean PHP src directory..."
     rm -rf ${cur_dir}/src/${Php_Ver}
+}
+
+Clean_Web_Src_Dir()
+{
+    echo "Clean Web Server src directory..."
     if [ "${Stack}" = "lnmp" ]; then
         rm -rf ${cur_dir}/src/${Nginx_Ver}
     elif [ "${Stack}" = "lnmpa" ]; then
@@ -196,11 +208,13 @@ Clean_Src_Dir()
     elif [ "${Stack}" = "lamp" ]; then
         rm -rf ${cur_dir}/src/${Apache_Ver}
     fi
+    [[ -d "${cur_dir}/src/${Openssl_Ver}" ]] && rm -rf ${cur_dir}/src/${Openssl_Ver}
+    [[ -d "${cur_dir}/src/${Openssl_New_Ver}" ]] && rm -rf ${cur_dir}/src/${Openssl_New_Ver}
 }
 
 Print_Sucess_Info()
 {
-    Clean_Src_Dir
+    Clean_Web_Src_Dir
     echo "+------------------------------------------------------------------------+"
     echo "|          LNMP V${LNMP_Ver} for ${DISTRO} Linux Server, Written by Licess          |"
     echo "+------------------------------------------------------------------------+"
@@ -221,7 +235,7 @@ Print_Sucess_Info()
     fi
     echo "+------------------------------------------------------------------------+"
     lnmp status
-    if [ -s /bin/ss ]; then
+    if command -v ss >/dev/null 2>&1; then
         ss -ntl
     else
         netstat -ntl

@@ -746,6 +746,27 @@ Add_SSL_Info_Menu()
     fi
 }
 
+Add_DNS_SSL_Only_Info_Menu()
+{
+    domain=""
+    while :;do
+        Echo_Yellow "Please enter domain(example: lnmp.org): "
+        read domain
+        if [ "${domain}" != "" ]; then
+            echo " Your domain: ${domain}"
+            break
+        else
+            Echo_Red "Domain name can't be empty!"
+        fi
+    done
+
+    Echo_Yellow "Enter more domain name(example: *.lnmp.org): "
+    read moredomain
+    if [ "${moredomain}" != "" ]; then
+        echo " domain list: ${moredomain}"
+    fi
+}
+
 Add_SSL_Menu()
 {
     if [ "${info}" == "n" ]; then
@@ -785,16 +806,8 @@ Add_SSL_Menu()
     done
 }
 
-Add_Letsencrypt()
+Install_Check_Acme.sh()
 {
-    if [[ "${vhostdir}" == "" || "${letsdomain}" == "" ]]; then
-        Echo_Red "Two parameters are needed!"
-        exit 1
-    fi
-    if [ ! -d "${vhostdir}" ]; then
-        Echo_Red "${vhostdir} does not exist or is not a directory!"
-        exit
-    fi
     if [ -s /usr/local/acme.sh/acme.sh ]; then
         echo "/usr/local/acme.sh/acme.sh [found]"
     else
@@ -808,9 +821,30 @@ Add_Letsencrypt()
         rm -f latest.tar.gz
         rm -rf acme.sh-*
         sed -i 's/cat "\$CERT_PATH"$/#cat "\$CERT_PATH"/g' /usr/local/acme.sh/acme.sh
+        if command -v yum >/dev/null 2>&1; then
+            service crond restart
+            chkconfig crond on
+        elif command -v apt-get >/dev/null 2>&1; then
+            /etc/init.d/cron restart
+            update-rc.d cron defaults
+        fi
     fi
 
     . "/usr/local/acme.sh/acme.sh.env"
+}
+
+Add_Letsencrypt()
+{
+    if [[ "${vhostdir}" == "" || "${letsdomain}" == "" ]]; then
+        Echo_Red "Two parameters are needed!"
+        exit 1
+    fi
+    if [ ! -d "${vhostdir}" ]; then
+        Echo_Red "${vhostdir} does not exist or is not a directory!"
+        exit
+    fi
+
+    Install_Check_Acme.sh
 
     if [ -s /usr/local/nginx/conf/ssl/${domain}/fullchain.cer ]; then
         echo "Removing exist domain certificate..."
@@ -844,13 +878,13 @@ server
         server_name ${domain} ${moredomain};
         index index.html index.htm index.php default.html default.htm default.php;
         root  ${vhostdir};
-        ssl on;
+
         ssl_certificate ${ssl_certificate};
         ssl_certificate_key ${ssl_certificate_key};
         ssl_session_timeout 5m;
-        ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+        ssl_protocols TLSv1 TLSv1.1 TLSv1.2 TLSv1.3;
         ssl_prefer_server_ciphers on;
-        ssl_ciphers "EECDH+CHACHA20:EECDH+CHACHA20-draft:EECDH+AES128:RSA+AES128:EECDH+AES256:RSA+AES256:EECDH+3DES:RSA+3DES:!MD5";
+        ssl_ciphers "TLS13-AES-256-GCM-SHA384:TLS13-CHACHA20-POLY1305-SHA256:TLS13-AES-128-GCM-SHA256:TLS13-AES-128-CCM-8-SHA256:TLS13-AES-128-CCM-SHA256:EECDH+CHACHA20:EECDH+CHACHA20-draft:EECDH+AES128:RSA+AES128:EECDH+AES256:RSA+AES256:EECDH+3DES:RSA+3DES:!MD5";
         ssl_session_cache builtin:1000 shared:SSL:10m;
         # openssl dhparam -out /usr/local/nginx/conf/ssl/dhparam.pem 2048
         ssl_dhparam /usr/local/nginx/conf/ssl/dhparam.pem;
@@ -928,27 +962,15 @@ Add_Dns_SSL()
     else
         Echo_Red "The dns manual mode can not renew automatically, you must renew it manually."
     fi
-    if [ -s /usr/local/acme.sh/acme.sh ]; then
-        echo "/usr/local/acme.sh/acme.sh [found]"
-    else
-        cd /tmp
-        [[ -f latest.tar.gz ]] && rm -f latest.tar.gz
-        wget https://soft.vpser.net/lib/acme.sh/latest.tar.gz --prefer-family=IPv4 --no-check-certificate
-        tar zxf latest.tar.gz
-        cd acme.sh-*
-        ./acme.sh --install --log --home /usr/local/acme.sh --certhome /usr/local/nginx/conf/ssl
-        cd ..
-        rm -f latest.tar.gz
-        rm -rf acme.sh-*
-        sed -i 's/cat "\$CERT_PATH"$/#cat "\$CERT_PATH"/g' /usr/local/acme.sh/acme.sh
-    fi
+
+    Install_Check_Acme.sh
+
     if [[ ! -s /usr/local/acme.sh/dnsapi/dns_${provider}.sh && "${provider}" != "" ]]; then
         echo "DNS Provider: ${provider} not found."
         exit 1
     fi
-    Add_SSL_Info_Menu
 
-    . "/usr/local/acme.sh/acme.sh.env"
+    Add_SSL_Info_Menu
 
     if [ -s /usr/local/nginx/conf/ssl/${domain}/fullchain.cer ]; then
         echo "Removing exist domain certificate..."
@@ -963,6 +985,11 @@ Add_Dns_SSL()
         done
     else
         letsdomain="-d ${domain}"
+    fi
+
+    if echo "${letsdomain}" | grep -q '\*\.' && echo "${letsdomain}" | grep -qi 'www\.'; then
+        Echo_Red "wildcard SSL certificate DO NOT allow add www. subdomain."
+        exit 1
     fi
 
     echo "Starting create SSL Certificate use Let's Encrypt..."
@@ -992,6 +1019,67 @@ Add_Dns_SSL()
         ssl_certificate="/usr/local/nginx/conf/ssl/${domain}/fullchain.cer"
         ssl_certificate_key="/usr/local/nginx/conf/ssl/${domain}/${domain}.key"
         Create_SSL_Config
+        Echo_Green "Let's Encrypt SSL Certificate create successfully."
+    else
+        Echo_Red "Let's Encrypt SSL Certificate create failed!"
+    fi
+}
+
+Add_Dns_SSL_Only()
+{
+    provider=$1
+    if [ "${provider}" != "" ]; then
+        dns_provider="dns_${provider}"
+    else
+        Echo_Red "The dns manual mode can not renew automatically, you must renew it manually."
+    fi
+
+    Install_Check_Acme.sh
+
+    if [[ ! -s /usr/local/acme.sh/dnsapi/dns_${provider}.sh && "${provider}" != "" ]]; then
+        echo "DNS Provider: ${provider} not found."
+        exit 1
+    fi
+    Add_DNS_SSL_Only_Info_Menu
+
+    if [ -s /usr/local/nginx/conf/ssl/${domain}/fullchain.cer ]; then
+        echo "Removing exist domain certificate..."
+        rm -rf /usr/local/nginx/conf/ssl/${domain}
+    fi
+
+    letsdomain=""
+    if [ "${moredomain}" != "" ]; then
+        letsdomain="-d ${domain}"
+        for i in ${moredomain};do
+            letsdomain=${letsdomain}" -d ${i}"
+        done
+    else
+        letsdomain="-d ${domain}"
+    fi
+
+    if echo "${letsdomain}" | grep -q '\*\.' && echo "${letsdomain}" | grep -qi 'www\.'; then
+        Echo_Red "wildcard SSL certificate DO NOT allow add www. subdomain."
+        exit 1
+    fi
+
+    echo "Starting create SSL Certificate use Let's Encrypt..."
+    if [ "${provider}" != "" ]; then
+        /usr/local/acme.sh/acme.sh --issue ${letsdomain} --dns ${dns_provider} --reloadcmd "/etc/init.d/nginx reload"
+        lets_status=$?
+    else
+        /usr/local/acme.sh/acme.sh --issue ${letsdomain} --dns --yes-I-know-dns-manual-mode-enough-go-ahead-please
+        Echo_Yellow "Please add the above TXT record to the domain in 120 seconds!!!"
+        echo
+        Sleep_Sec 120
+        /usr/local/acme.sh/acme.sh --renew ${letsdomain} --yes-I-know-dns-manual-mode-enough-go-ahead-please
+        lets_status=$?
+    fi
+    if [ "${lets_status}" = 0 ] || [[ "${provider}" = "" && "${lets_status}" = 1 && -s "/usr/local/nginx/conf/ssl/${domain}/fullchain.cer" ]]; then
+        Echo_Blue "------------------ SSL Certificate information as follows ------------------"
+        Echo_Blue "| Domain: ${domain} ${moredomain}"
+        Echo_Blue "| SSL Certificate: /usr/local/nginx/conf/ssl/${domain}/fullchain.cer"
+        Echo_Blue "| SSL Certificate Key: /usr/local/nginx/conf/ssl/${domain}/${domain}.key"
+        Echo_Blue "------------------------------------ ---------------------------------------"
         Echo_Green "Let's Encrypt SSL Certificate create successfully."
     else
         Echo_Red "Let's Encrypt SSL Certificate create failed!"
@@ -1091,6 +1179,9 @@ case "${arg1}" in
         ;;
     dnsssl|dns)
         Add_Dns_SSL ${arg2}
+        ;;
+    onlyssl)
+        Add_Dns_SSL_Only ${arg2}
         ;;
     *)
         echo "Usage: lnmp {start|stop|reload|restart|kill|status}"

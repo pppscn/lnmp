@@ -38,10 +38,9 @@ Display_Addons_Menu()
     echo "7: imageMagick"
     echo "##### encryption/decryption utility for PHP #####"
     echo "8: ionCube Loader"
-    echo "9: Nghttp2"
     echo "exit: Exit current script"
     echo "#####################################################"
-    read -p "Enter your choice (1, 2, 3, 4, 5, 6, 7, 8, 9 or exit): " action2
+    read -p "Enter your choice (1, 2, 3, 4, 5, 6, 7, 8 or exit): " action2
 }
 
 Restart_PHP()
@@ -57,7 +56,7 @@ Restart_PHP()
 
 clear
 echo "+-----------------------------------------------------------------------+"
-echo "|            Addons script for LNMP V1.4, Written by Licess             |"
+echo "|            Addons script for LNMP V1.6, Written by Licess             |"
 echo "+-----------------------------------------------------------------------+"
 echo "|    A tool to Install cache,optimizer,accelerator...addons for LNMP    |"
 echo "+-----------------------------------------------------------------------+"
@@ -97,7 +96,7 @@ Select_PHP()
         if [[ -s /usr/local/php7.2/sbin/php-fpm && -s /usr/local/nginx/conf/enable-php7.2.conf && -s /etc/init.d/php-fpm7.2 ]]; then
             Echo_Green "9: PHP 7.2 [found]"
         fi
-        Echo_Yellow "Enter your choice (1, 2, 3, 4, 5, 6 ,7 ,8 or 9): "
+        Echo_Yellow "Enter your choice (1, 2, 3, 4, 5, 6 ,7 ,8 ,9 or 10): "
         read php_select
         case "${php_select}" in
             1)
@@ -144,6 +143,11 @@ Select_PHP()
                 echo "Current selection:: PHP `/usr/local/php7.2/bin/php-config --version`"
                 PHP_Path='/usr/local/php7.2'
                 PHPFPM_Initd='/etc/init.d/php-fpm7.2'
+                ;;
+            10)
+                echo "Current selection:: PHP `/usr/local/php7.3/bin/php-config --version`"
+                PHP_Path='/usr/local/php7.3'
+                PHPFPM_Initd='/etc/init.d/php-fpm7.3'
                 ;;
             *)
                 echo "Default,Current selection: PHP ${Cur_PHP_Version}"

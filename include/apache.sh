@@ -49,7 +49,7 @@ Install_Apache_22()
         sed -i "s#/www/web/default#${Default_Website_Dir}#g" /usr/local/apache/conf/extra/httpd-vhosts.conf
     fi
 
-    if [[ "${PHPSelect}" =~ ^[678]$ ]]; then
+    if [[ "${PHPSelect}" =~ ^[6789]$ ]]; then
         sed -i '/^LoadModule php5_module/d' /usr/local/apache/conf/httpd.conf
     fi
 
@@ -68,7 +68,7 @@ Install_Apache_24()
         mkdir -p /www/log
         chmod 777 /www/log
         chown -R www:www ${Default_Website_Dir}
-        Install_Openssl
+        Install_Openssl_New
         Install_Nghttp2
     fi
     Tarj_Cd ${Apache_Ver}.tar.bz2 ${Apache_Ver}
@@ -91,7 +91,7 @@ Install_Apache_24()
     mv ${APR_Util_Ver} apr-util
     cd ..
     if [ "${Stack}" = "lamp" ]; then
-        ./configure --prefix=/usr/local/apache --enable-mods-shared=most --enable-headers --enable-mime-magic --enable-proxy --enable-so --enable-rewrite --enable-ssl --with-ssl=/usr/local/openssl --enable-deflate --with-pcre --with-included-apr --with-apr-util --enable-mpms-shared=all --enable-remoteip --enable-http2 --with-nghttp2=/usr/local/nghttp2
+        ./configure --prefix=/usr/local/apache --enable-mods-shared=most --enable-headers --enable-mime-magic --enable-proxy --enable-so --enable-rewrite --enable-ssl ${apache_with_ssl} --enable-deflate --with-pcre --with-included-apr --with-apr-util --enable-mpms-shared=all --enable-remoteip --enable-http2 --with-nghttp2=/usr/local/nghttp2
     else
         ./configure --prefix=/usr/local/apache --enable-mods-shared=most --enable-headers --enable-mime-magic --enable-proxy --enable-so --enable-rewrite --enable-ssl --with-ssl --enable-deflate --with-pcre --with-included-apr --with-apr-util --enable-mpms-shared=all --enable-remoteip
     fi
@@ -119,7 +119,7 @@ Install_Apache_24()
         sed -i "s#/www/web/default#${Default_Website_Dir}#g" /usr/local/apache/conf/extra/httpd-vhosts.conf
     fi
 
-    if [[ "${PHPSelect}" =~ ^[678]$ ]]; then
+    if [[ "${PHPSelect}" =~ ^[6789]$ ]]; then
         sed -i '/^LoadModule php5_module/d' /usr/local/apache/conf/httpd.conf
     fi
 

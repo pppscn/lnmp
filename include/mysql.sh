@@ -33,7 +33,7 @@ MySQL_Sec_Setting()
         ulimit -s unlimited
     fi
 
-    if [ -s /bin/systemctl ]; then
+    if command -v systemctl >/dev/null 2>&1; then
         systemctl enable mysql.service
     fi
     /etc/init.d/mysql start
@@ -531,11 +531,11 @@ EOF
 
 Install_MySQL_57()
 {
-    Install_Boost
     Echo_Blue "[+] Installing ${Mysql_Ver}..."
     rm -f /etc/my.cnf
     Tar_Cd ${Mysql_Ver}.tar.gz ${Mysql_Ver}
-    cmake -DCMAKE_INSTALL_PREFIX=/usr/local/mysql -DSYSCONFDIR=/etc -DWITH_MYISAM_STORAGE_ENGINE=1 -DWITH_INNOBASE_STORAGE_ENGINE=1 -DWITH_PARTITION_STORAGE_ENGINE=1 -DWITH_FEDERATED_STORAGE_ENGINE=1 -DEXTRA_CHARSETS=all -DDEFAULT_CHARSET=utf8mb4 -DDEFAULT_COLLATION=utf8mb4_general_ci -DWITH_EMBEDDED_SERVER=1 -DENABLED_LOCAL_INFILE=1 -DWITH_BOOST=${cur_dir}/src/${Boost_Ver}
+    Install_Boost
+    cmake -DCMAKE_INSTALL_PREFIX=/usr/local/mysql -DSYSCONFDIR=/etc -DWITH_MYISAM_STORAGE_ENGINE=1 -DWITH_INNOBASE_STORAGE_ENGINE=1 -DWITH_PARTITION_STORAGE_ENGINE=1 -DWITH_FEDERATED_STORAGE_ENGINE=1 -DEXTRA_CHARSETS=all -DDEFAULT_CHARSET=utf8mb4 -DDEFAULT_COLLATION=utf8mb4_general_ci -DWITH_EMBEDDED_SERVER=1 -DENABLED_LOCAL_INFILE=1 ${MySQL_WITH_BOOST}
     Make_Install
 
     groupadd mysql
@@ -628,11 +628,11 @@ EOF
 
 Install_MySQL_80()
 {
-    Install_Boost
     Echo_Blue "[+] Installing ${Mysql_Ver}..."
     rm -f /etc/my.cnf
     Tar_Cd ${Mysql_Ver}.tar.gz ${Mysql_Ver}
-    cmake -DCMAKE_INSTALL_PREFIX=/usr/local/mysql -DSYSCONFDIR=/etc -DWITH_MYISAM_STORAGE_ENGINE=1 -DWITH_INNOBASE_STORAGE_ENGINE=1 -DWITH_PARTITION_STORAGE_ENGINE=1 -DWITH_FEDERATED_STORAGE_ENGINE=1 -DEXTRA_CHARSETS=all -DDEFAULT_CHARSET=utf8mb4 -DDEFAULT_COLLATION=utf8mb4_general_ci -DWITH_EMBEDDED_SERVER=1 -DENABLED_LOCAL_INFILE=1 -DWITH_BOOST=${cur_dir}/src/${Boost_New_Ver}
+    Install_Boost
+    cmake -DCMAKE_INSTALL_PREFIX=/usr/local/mysql -DSYSCONFDIR=/etc -DWITH_MYISAM_STORAGE_ENGINE=1 -DWITH_INNOBASE_STORAGE_ENGINE=1 -DWITH_PARTITION_STORAGE_ENGINE=1 -DWITH_FEDERATED_STORAGE_ENGINE=1 -DEXTRA_CHARSETS=all -DDEFAULT_CHARSET=utf8mb4 -DDEFAULT_COLLATION=utf8mb4_general_ci -DWITH_EMBEDDED_SERVER=1 -DENABLED_LOCAL_INFILE=1 ${MySQL_WITH_BOOST}
     Make_Install
 
     groupadd mysql

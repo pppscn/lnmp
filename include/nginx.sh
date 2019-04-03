@@ -3,10 +3,21 @@
 Install_Nginx_Openssl()
 {
     if [ "${Enable_Nginx_Openssl}" = 'y' ]; then
-        Download_Files ${Download_Mirror}/lib/openssl/${Openssl_Ver}.tar.gz ${Openssl_Ver}.tar.gz
-        [[ -d "${Openssl_Ver}" ]] && rm -rf ${Openssl_Ver}
-        tar zxf ${Openssl_Ver}.tar.gz
-        Nginx_With_Openssl="--with-openssl=${cur_dir}/src/${Openssl_Ver}"
+        if [ ! -n "${Nginx_Version}" ]; then
+            Nginx_Version=$(echo ${Nginx_Ver} | sed "s/nginx-//")
+        fi
+        Nginx_Ver_Com=$(${cur_dir}/include/version_compare 1.13.0 ${Nginx_Version})
+        if [[ "${Nginx_Ver_Com}" == "0" ||  "${Nginx_Ver_Com}" == "1" ]]; then
+            Download_Files ${Download_Mirror}/lib/openssl/${Openssl_Ver}.tar.gz ${Openssl_Ver}.tar.gz
+            [[ -d "${Openssl_Ver}" ]] && rm -rf ${Openssl_Ver}
+            tar zxf ${Openssl_Ver}.tar.gz
+            Nginx_With_Openssl="--with-openssl=${cur_dir}/src/${Openssl_Ver}"
+        else
+            Download_Files ${Download_Mirror}/lib/openssl/${Openssl_New_Ver}.tar.gz ${Openssl_New_Ver}.tar.gz
+            [[ -d "${Openssl_New_Ver}" ]] && rm -rf ${Openssl_New_Ver}
+            tar zxf ${Openssl_New_Ver}.tar.gz
+            Nginx_With_Openssl="--with-openssl=${cur_dir}/src/${Openssl_New_Ver} --with-openssl-opt='enable-weak-ssl-ciphers'"
+        fi
     fi
 }
 
@@ -22,7 +33,7 @@ Install_Nginx_Lua()
         Echo_Blue "[+] Installing ${Luajit_Ver}... "
         tar zxf ${LuaNginxModule}.tar.gz
         tar zxf ${NgxDevelKit}.tar.gz
-        if [[ ! -s /usr/local/luajit/bin/luajit || ! -s /usr/local/luajit/include/luajit-2.0/luajit.h || ! -s /usr/local/luajit/lib/libluajit-5.1.so ]]; then
+        if [[ ! -s /usr/local/luajit/bin/luajit || ! -s /usr/local/luajit/include/luajit-2.1/luajit.h || ! -s /usr/local/luajit/lib/libluajit-5.1.so ]]; then
             Tar_Cd ${Luajit_Ver}.tar.gz ${Luajit_Ver}
             make
             make install PREFIX=/usr/local/luajit
@@ -42,7 +53,7 @@ EOF
 
         cat >/etc/profile.d/luajit.sh<<EOF
 export LUAJIT_LIB=/usr/local/luajit/lib
-export LUAJIT_INC=/usr/local/luajit/include/luajit-2.0
+export LUAJIT_INC=/usr/local/luajit/include/luajit-2.1
 EOF
 
         source /etc/profile.d/luajit.sh
@@ -61,13 +72,15 @@ Install_Nginx()
     Install_Nginx_Openssl
     Install_Nginx_Lua
     Tar_Cd ${Nginx_Ver}.tar.gz ${Nginx_Ver}
-    if [[ "${DISTRO}" = "Fedora" && "${Fedora_Version}" = "28" ]]; then
+    if [[ "${DISTRO}" = "Fedora" && ${Fedora_Version} -ge 28 ]]; then
         patch -p1 < ${cur_dir}/src/patch/nginx-libxcrypt.patch
     fi
-    if gcc -dumpversion|grep -q "^[8]"; then
+    Nginx_Ver_Com=$(${cur_dir}/include/version_compare 1.14.2 ${Nginx_Version})
+    if gcc -dumpversion|grep -q "^[8]" && [ "${Nginx_Ver_Com}" == "1" ]; then
         patch -p1 < ${cur_dir}/src/patch/nginx-gcc8.patch
     fi
-    if echo ${Nginx_Ver} | grep -Eqi 'nginx-[0-1].[5-8].[0-9]' || echo ${Nginx_Ver} | grep -Eqi 'nginx-1.9.[1-4]$'; then
+    Nginx_Ver_Com=$(${cur_dir}/include/version_compare 1.9.4 ${Nginx_Version})
+    if [[ "${Nginx_Ver_Com}" == "0" ||  "${Nginx_Ver_Com}" == "1" ]]; then
         ./configure --user=www --group=www --prefix=/usr/local/nginx --with-http_stub_status_module --with-http_ssl_module --with-http_spdy_module --with-http_gzip_static_module --with-ipv6 --with-http_sub_module ${Nginx_With_Openssl} ${Nginx_Module_Lua} ${NginxMAOpt} ${Nginx_Modules_Options}
     else
         ./configure --user=www --group=www --prefix=/usr/local/nginx --with-http_stub_status_module --with-http_ssl_module --with-http_v2_module --with-http_gzip_static_module --with-http_sub_module --with-stream --with-stream_ssl_module ${Nginx_With_Openssl} ${Nginx_Module_Lua} ${NginxMAOpt} ${Nginx_Modules_Options}
@@ -90,8 +103,7 @@ Install_Nginx()
     \cp conf/pathinfo.conf /usr/local/nginx/conf/pathinfo.conf
     \cp conf/enable-php.conf /usr/local/nginx/conf/enable-php.conf
     \cp conf/enable-php-pathinfo.conf /usr/local/nginx/conf/enable-php-pathinfo.conf
-    \cp conf/enable-ssl-example.conf /usr/local/nginx/conf/enable-ssl-example.conf
-    \cp conf/magento2-example.conf /usr/local/nginx/conf/magento2-example.conf
+    \cp -ra conf/example /usr/local/nginx/conf/example
     if [ "${Enable_Nginx_Lua}" = 'y' ]; then
         sed -i "/location \/nginx_status/i\        location /lua\n        {\n            default_type text/html;\n            content_by_lua 'ngx.say\(\"hello world\"\)';\n        }\n" /usr/local/nginx/conf/nginx.conf
     fi
@@ -128,5 +140,13 @@ EOF
         chown -R www:www /tmp/tcmalloc
         sed -i '/nginx.pid/a\
 google_perftools_profiles /tmp/tcmalloc;' /usr/local/nginx/conf/nginx.conf
+    fi
+
+    if [ "${Stack}" != "lamp" ]; then
+        uname_r=$(uname -r)
+        if echo $uname_r|grep -Eq "^3\.(9|1[0-9])*|^[4-9]\.*"; then
+            echo "3.9+";
+            sed -i 's/listen 80 default_server;/listen 80 default_server reuseport;/g' /usr/local/nginx/conf/nginx.conf
+        fi
     fi
 }
