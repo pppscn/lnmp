@@ -206,7 +206,50 @@ Select_PHP
                 exit 1
                 ;;
             *)
-                echo "Usage: ./addons.sh {install|uninstall} {eaccelerator|xcache|memcached|opcache|redis|imagemagick|ioncube|nghttp2}"
+                echo "Usage: ./addons.sh {install|update|uninstall} {eaccelerator|xcache|memcached|opcache|redis|imagemagick|ioncube|nghttp2}"
+                ;;
+        esac
+        ;;
+    update)
+        case "${action2}" in
+            e[aA]ccelerator)
+                Uninstall_eAccelerator
+                Install_eAccelerator
+                ;;
+            [xX]cache)
+                Uninstall_XCache
+                Install_XCache
+                ;;
+            [mM]emcached)
+                Uninstall_Memcached
+                Install_Memcached
+                ;;
+            opcache)
+                Uninstall_Opcache
+                Install_Opcache
+                ;;
+            [rR]edis)
+                Uninstall_Redis
+                Install_Redis
+                ;;
+            apcu)
+                Uninstall_Apcu
+                Install_Apcu
+                ;;
+            image[mM]agick)
+                Uninstall_ImageMagick
+                Install_ImageMagic
+                ;;
+            ion[cC]ube)
+                Uninstall_ionCube
+                Install_ionCube
+                ;;
+            [nN]ghttp2)
+                Uninstall_Nghttp2
+                Install_Nghttp2
+                ;;
+            *)
+                echo "Usage: ./addons.sh {install|update|uninstall} {eaccelerator|xcache|memcached|opcache|redis|apcu|imagemagick|ioncube|nghttp2}"
                 ;;
         esac
         ;;
@@ -240,7 +283,7 @@ Select_PHP
                 Uninstall_Nghttp2
                 ;;
             *)
-                echo "Usage: ./addons.sh {install|uninstall} {eaccelerator|xcache|memcached|opcache|redis|apcu|imagemagick|ioncube|nghttp2}"
+                echo "Usage: ./addons.sh {install|update|uninstall} {eaccelerator|xcache|memcached|opcache|redis|apcu|imagemagick|ioncube|nghttp2}"
                 ;;
         esac
         ;;
@@ -248,7 +291,7 @@ Select_PHP
         exit 1
         ;;
     *)
-        echo "Usage: ./addons.sh {install|uninstall} {eaccelerator|xcache|memcached|opcache|redis|apcu|imagemagick|ioncube}"
+        echo "Usage: ./addons.sh {install|update|uninstall} {eaccelerator|xcache|memcached|opcache|redis|apcu|imagemagick|ioncube}"
         exit 1
         ;;
     esac
