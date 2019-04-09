@@ -67,15 +67,15 @@ if [[ "${PHPSelect}" =~ ^[123]$ ]]; then
 else
     PhpMyAdmin_Ver='phpMyAdmin-4.8.5-all-languages'
 fi
-APR_Ver='apr-1.6.5'
+APR_Ver='apr-1.7.0'
 APR_Util_Ver='apr-util-1.6.1'
 if [ "${ApacheSelect}" = "1" ]; then
     Apache_Ver='httpd-2.2.34'
 elif [ "${ApacheSelect}" = "2" ]; then
-    Apache_Ver='httpd-2.4.38'
+    Apache_Ver='httpd-2.4.39'
 fi
 
-Pureftpd_Ver='pure-ftpd-1.0.47'
+Pureftpd_Ver='pure-ftpd-1.0.49'
 
 XCache_Ver='xcache-3.2.0'
 ImageMagick_Ver='ImageMagick-7.0.*'
