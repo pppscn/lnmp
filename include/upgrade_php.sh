@@ -192,11 +192,13 @@ Upgrade_PHP_52()
         \cp ZendOptimizer-3.3.9-linux-glibc23-i386/data/5_2_x_comp/ZendOptimizer.so /usr/local/zend/
     fi
 
+    if [ "${Is_ARM}" != "y" ]; then
     cat >/usr/local/php/conf.d/002-zendoptimizer.ini<<EOF
 [Zend Optimizer]
 zend_optimizer.optimization_level=1
 zend_extension="/usr/local/zend/ZendOptimizer.so"
 EOF
+    fi
 
     if [ "${Stack}" = "lnmp" ]; then
         rm -f /usr/local/php/etc/php-fpm.conf
@@ -255,6 +257,7 @@ Upgrade_PHP_53()
         \cp ZendGuardLoader-php-5.3-linux-glibc23-i386/php-5.3.x/ZendGuardLoader.so /usr/local/zend/
     fi
 
+    if [ "${Is_ARM}" != "y" ]; then
     echo "Write ZendGuardLoader to php.ini......"
     cat >/usr/local/php/conf.d/002-zendguardloader.ini<<EOF
 [Zend Optimizer]
@@ -267,6 +270,7 @@ EOF
 
     if grep -q '^LoadModule mpm_event_module' /usr/local/apache/conf/httpd.conf && [ "${Stack}" != "lnmp" ]; then
         mv /usr/local/php/conf.d/002-zendguardloader.ini /usr/local/php/conf.d/002-zendguardloader.ini.disable
+        fi
     fi
 
 if [ "${Stack}" = "lnmp" ]; then
@@ -353,6 +357,7 @@ Upgrade_PHP_54()
         \cp ZendGuardLoader-70429-PHP-5.4-linux-glibc23-i386/php-5.4.x/ZendGuardLoader.so /usr/local/zend/
     fi
 
+    if [ "${Is_ARM}" != "y" ]; then
     echo "Write ZendGuardLoader to php.ini......"
     cat >/usr/local/php/conf.d/002-zendguardloader.ini<<EOF
 [Zend ZendGuard Loader]
@@ -365,6 +370,7 @@ EOF
 
     if grep -q '^LoadModule mpm_event_module' /usr/local/apache/conf/httpd.conf && [ "${Stack}" != "lnmp" ]; then
         mv /usr/local/php/conf.d/002-zendguardloader.ini /usr/local/php/conf.d/002-zendguardloader.ini.disable
+        fi
     fi
 
 if [ "${Stack}" = "lnmp" ]; then
@@ -467,6 +473,7 @@ Upgrade_PHP_556()
         fi
     fi
 
+    if [ "${Is_ARM}" != "y" ]; then
     echo "Write ZendGuardLoader to php.ini......"
     cat >/usr/local/php/conf.d/002-zendguardloader.ini<<EOF
 [Zend ZendGuard Loader]
@@ -479,6 +486,7 @@ EOF
 
     if grep -q '^LoadModule mpm_event_module' /usr/local/apache/conf/httpd.conf && [ "${Stack}" != "lnmp" ]; then
         mv /usr/local/php/conf.d/002-zendguardloader.ini /usr/local/php/conf.d/002-zendguardloader.ini.disable
+    fi
     fi
 
     echo "Download Opcache Control Panel..."
