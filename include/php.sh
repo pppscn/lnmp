@@ -52,7 +52,11 @@ PHP_with_openssl()
 PHP_with_fileinfo()
 {
     if [ "${Enable_PHP_Fileinfo}" = "n" ];then
-        with_fileinfo='--disable-fileinfo'
+        if [ `free -m | grep Mem | awk '{print  $2}'` -lt 1024 ]; then
+            with_fileinfo='--disable-fileinfo'
+        else
+            with_fileinfo=''
+        fi
     else
         with_fileinfo=''
     fi
@@ -156,7 +160,7 @@ Install_PHP_52()
     fi
 
     if [ "${Is_ARM}" != "y" ]; then
-    cat >/usr/local/php/conf.d/002-zendoptimizer.ini<<EOF
+        cat >/usr/local/php/conf.d/002-zendoptimizer.ini<<EOF
 [Zend Optimizer]
 zend_optimizer.optimization_level=1
 zend_extension="/usr/local/zend/ZendOptimizer.so"
@@ -221,8 +225,8 @@ Install_PHP_53()
     fi
 
     if [ "${Is_ARM}" != "y" ]; then
-    echo "Write ZendGuardLoader to php.ini..."
-    cat >/usr/local/php/conf.d/002-zendguardloader.ini<<EOF
+        echo "Write ZendGuardLoader to php.ini..."
+        cat >/usr/local/php/conf.d/002-zendguardloader.ini<<EOF
 [Zend ZendGuard Loader]
 zend_extension=/usr/local/zend/ZendGuardLoader.so
 zend_loader.enable=1
@@ -231,8 +235,8 @@ zend_loader.obfuscation_level_support=3
 zend_loader.license_path=
 EOF
 
-    if grep -q '^LoadModule mpm_event_module' /usr/local/apache/conf/httpd.conf && [ "${ApacheSelect}" = "2" ]; then
-        mv /usr/local/php/conf.d/002-zendguardloader.ini /usr/local/php/conf.d/002-zendguardloader.ini.disable
+        if grep -q '^LoadModule mpm_event_module' /usr/local/apache/conf/httpd.conf && [ "${ApacheSelect}" = "2" ]; then
+            mv /usr/local/php/conf.d/002-zendguardloader.ini /usr/local/php/conf.d/002-zendguardloader.ini.disable
         fi
     fi
 
@@ -317,8 +321,8 @@ Install_PHP_54()
     fi
 
     if [ "${Is_ARM}" != "y" ]; then
-    echo "Write ZendGuardLoader to php.ini..."
-    cat >/usr/local/php/conf.d/002-zendguardloader.ini<<EOF
+        echo "Write ZendGuardLoader to php.ini..."
+        cat >/usr/local/php/conf.d/002-zendguardloader.ini<<EOF
 [Zend ZendGuard Loader]
 zend_extension=/usr/local/zend/ZendGuardLoader.so
 zend_loader.enable=1
@@ -327,8 +331,8 @@ zend_loader.obfuscation_level_support=3
 zend_loader.license_path=
 EOF
 
-    if grep -q '^LoadModule mpm_event_module' /usr/local/apache/conf/httpd.conf && [ "${ApacheSelect}" = "2" ]; then
-        mv /usr/local/php/conf.d/002-zendguardloader.ini /usr/local/php/conf.d/002-zendguardloader.ini.disable
+        if grep -q '^LoadModule mpm_event_module' /usr/local/apache/conf/httpd.conf && [ "${ApacheSelect}" = "2" ]; then
+            mv /usr/local/php/conf.d/002-zendguardloader.ini /usr/local/php/conf.d/002-zendguardloader.ini.disable
         fi
     fi
 
@@ -413,8 +417,8 @@ Install_PHP_55()
     fi
 
     if [ "${Is_ARM}" != "y" ]; then
-    echo "Write ZendGuardLoader to php.ini..."
-    cat >/usr/local/php/conf.d/002-zendguardloader.ini<<EOF
+        echo "Write ZendGuardLoader to php.ini..."
+        cat >/usr/local/php/conf.d/002-zendguardloader.ini<<EOF
 [Zend ZendGuard Loader]
 zend_extension=/usr/local/zend/ZendGuardLoader.so
 zend_loader.enable=1
@@ -423,8 +427,8 @@ zend_loader.obfuscation_level_support=3
 zend_loader.license_path=
 EOF
 
-    if grep -q '^LoadModule mpm_event_module' /usr/local/apache/conf/httpd.conf && [ "${ApacheSelect}" = "2" ]; then
-        mv /usr/local/php/conf.d/002-zendguardloader.ini /usr/local/php/conf.d/002-zendguardloader.ini.disable
+        if grep -q '^LoadModule mpm_event_module' /usr/local/apache/conf/httpd.conf && [ "${ApacheSelect}" = "2" ]; then
+            mv /usr/local/php/conf.d/002-zendguardloader.ini /usr/local/php/conf.d/002-zendguardloader.ini.disable
         fi
     fi
 
@@ -509,8 +513,8 @@ Install_PHP_56()
     fi
 
     if [ "${Is_ARM}" != "y" ]; then
-    echo "Write ZendGuardLoader to php.ini..."
-    cat >/usr/local/php/conf.d/002-zendguardloader.ini<<EOF
+        echo "Write ZendGuardLoader to php.ini..."
+        cat >/usr/local/php/conf.d/002-zendguardloader.ini<<EOF
 [Zend ZendGuard Loader]
 zend_extension=/usr/local/zend/ZendGuardLoader.so
 zend_loader.enable=1
@@ -519,8 +523,8 @@ zend_loader.obfuscation_level_support=3
 zend_loader.license_path=
 EOF
 
-    if grep -q '^LoadModule mpm_event_module' /usr/local/apache/conf/httpd.conf && [ "${ApacheSelect}" = "2" ]; then
-        mv /usr/local/php/conf.d/002-zendguardloader.ini /usr/local/php/conf.d/002-zendguardloader.ini.disable
+        if grep -q '^LoadModule mpm_event_module' /usr/local/apache/conf/httpd.conf && [ "${ApacheSelect}" = "2" ]; then
+            mv /usr/local/php/conf.d/002-zendguardloader.ini /usr/local/php/conf.d/002-zendguardloader.ini.disable
         fi
     fi
 

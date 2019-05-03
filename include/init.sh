@@ -154,6 +154,8 @@ Ubuntu_Modify_Source()
         Ubuntu_Deadline xenial
     elif grep -Eqi "18.10" /etc/*-release || echo "${Ubuntu_Version}" | grep -Eqi '^18.10'; then
         Ubuntu_Deadline cosmic
+    elif grep -Eqi "19.04" /etc/*-release || echo "${Ubuntu_Version}" | grep -Eqi '^19.04'; then
+        Ubuntu_Deadline disco
     fi
     if [ "${CodeName}" != "" ]; then
         \cp /etc/apt/sources.list /etc/apt/sources.list.$(date +"%Y%m%d")
@@ -187,6 +189,7 @@ Ubuntu_Deadline()
     artful_deadline=`date -d "2018-7-31 00:00:00" +%s`
     xenial_deadline=`date -d "2021-4-30 00:00:00" +%s`
     cosmic_deadline=`date -d "2019-7-30 00:00:00" +%s`
+    disco_deadline=`date -d "2020-1-30 00:00:00" +%s`
     cur_time=`date  +%s`
     case "$1" in
         trusty)
@@ -211,6 +214,12 @@ Ubuntu_Deadline()
             if [ ${cur_time} -gt ${cosmic_deadline} ]; then
                 echo "${cur_time} > ${cosmic_deadline}"
                 Check_Old_Releases_URL cosmic
+            fi
+            ;;
+        disco)
+            if [ ${cur_time} -gt ${disco_deadline} ]; then
+                echo "${cur_time} > ${disco_deadline}"
+                Check_Old_Releases_URL disco
             fi
             ;;
     esac
@@ -474,7 +483,7 @@ Install_Icu4c()
     fi
 }
 
-Install_Boost()
+Download_Boost()
 {
     Echo_Blue "[+] Download or use exist boost..."
     if [ "${DBSelect}" = "4" ] || echo "${mysql_version}" | grep -Eqi '^5.7.'; then
@@ -497,6 +506,24 @@ Install_Boost()
             MySQL_WITH_BOOST="-DWITH_BOOST=${cur_dir}/src/boost_${Get_Boost_Ver}"
         else
             MySQL_WITH_BOOST="-DDOWNLOAD_BOOST=1 -DWITH_BOOST=${cur_dir}/src"
+        fi
+    fi
+}
+
+Install_Boost()
+{
+    Echo_Blue "[+] Download or use exist boost..."
+    if [ "${DBSelect}" = "4" ] || [ "${DBSelect}" = "5" ]; then
+        if [ -d "${cur_dir}/src/${Mysql_Ver}/boost" ]; then
+            MySQL_WITH_BOOST="-DWITH_BOOST=${cur_dir}/src/${Mysql_Ver}/boost"
+        else
+            Download_Boost
+        fi
+    elif echo "${mysql_version}" | grep -Eqi '^5.7.' || echo "${mysql_version}" | grep -Eqi '^8.0.'; then
+        if [ -d "${cur_dir}/src/mysql-${mysql_version}/boost" ]; then
+            MySQL_WITH_BOOST="-DWITH_BOOST=${cur_dir}/src/mysql-${mysql_version}/boost"
+        else
+            Download_Boost
         fi
     fi
 }
