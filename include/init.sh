@@ -238,8 +238,12 @@ CentOS_Dependent()
     fi
 
     Echo_Blue "[+] Yum installing dependent packages..."
-    for packages in make cmake gcc gcc-c++ gcc-g77 flex bison file libtool libtool-libs autoconf kernel-devel patch wget crontabs libjpeg libjpeg-devel libpng libpng-devel libpng10 libpng10-devel gd gd-devel libxml2 libxml2-devel zlib zlib-devel glib2 glib2-devel unzip tar bzip2 bzip2-devel libzip-devel libevent libevent-devel ncurses ncurses-devel curl curl-devel libcurl libcurl-devel e2fsprogs e2fsprogs-devel krb5 krb5-devel libidn libidn-devel openssl openssl-devel vim-minimal gettext gettext-devel ncurses-devel gmp-devel pspell-devel unzip libcap diffutils ca-certificates net-tools libc-client-devel psmisc libXpm-devel git-core c-ares-devel libicu-devel libxslt libxslt-devel xz expat-devel libaio-devel rpcgen libtirpc-devel perl python-devel cyrus-sasl-devel;
+    for packages in make cmake gcc gcc-c++ gcc-g77 flex bison file libtool libtool-libs autoconf patch wget crontabs libjpeg libjpeg-devel libpng libpng-devel libpng10 libpng10-devel gd gd-devel libxml2 libxml2-devel zlib zlib-devel glib2 glib2-devel unzip tar bzip2 bzip2-devel libzip-devel libevent libevent-devel ncurses ncurses-devel curl curl-devel libcurl libcurl-devel e2fsprogs e2fsprogs-devel krb5 krb5-devel libidn libidn-devel openssl openssl-devel vim-minimal gettext gettext-devel ncurses-devel gmp-devel pspell-devel unzip libcap diffutils ca-certificates net-tools libc-client-devel psmisc libXpm-devel git-core c-ares-devel libicu-devel libxslt libxslt-devel xz expat-devel libaio-devel rpcgen libtirpc-devel perl python-devel cyrus-sasl-devel;
     do yum -y install $packages; done
+    yum -y update nss
+    if [ "${DISTRO}" = "CentOS" ] && echo "${CentOS_Version}" | grep -Eqi "^8\."; then
+        dnf --enablerepo=PowerTools install rpcgen -y
+    fi
 
     if [ -s /etc/yum.conf.lnmp ]; then
         mv -f /etc/yum.conf.lnmp /etc/yum.conf
@@ -476,12 +480,15 @@ Install_TCMalloc()
 
 Install_Icu4c()
 {
-    if ! command -v icu-config >/dev/null 2>&1 || icu-config --version | grep '^3.'; then
+    if command -v icu-config >/dev/null 2>&1 && icu-config --version | grep -Eq "^3."; then
         Echo_Blue "[+] Installing ${Libicu4c_Ver}"
         cd ${cur_dir}/src
         Download_Files ${Download_Mirror}/lib/icu4c/${Libicu4c_Ver}-src.tgz ${Libicu4c_Ver}-src.tgz
         Tar_Cd ${Libicu4c_Ver}-src.tgz icu/source
         ./configure --prefix=/usr
+        if [ ! -s /usr/include/xlocale.h ]; then
+            ln -s /usr/include/locale.h /usr/include/xlocale.h
+        fi
         Make_Install
         cd ${cur_dir}/src/
         rm -rf ${cur_dir}/src/icu
@@ -738,13 +745,13 @@ Add_Swap()
             Enable_Swap='n'
         fi
     elif [[ "${MemTotal}" -ge 16384 ]]; then
-        DD_Count='16384'
+        DD_Count='8192'
         if [ "${Disk_Avail}" -lt 27 ]; then
             Enable_Swap='n'
         fi
     fi
     Swap_Total=$(free -m | grep Swap | awk '{print  $2}')
-    if [[ "${Enable_Swap}" = "y" && "${Swap_Total}" -le 512 ]]; then
+    if [[ "${Enable_Swap}" = "y" && "${Swap_Total}" -le 512 && ! -s /var/swapfile ]]; then
         echo "Add Swap file..."
         dd if=/dev/zero of=/var/swapfile bs=1M count=${DD_Count}
         chmod 0600 /var/swapfile
