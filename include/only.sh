@@ -145,12 +145,17 @@ Install_Only_Database()
 
     Get_Dist_Name
     Check_DB
-    if [ ${DB_Name} != "None" ]; then
+    if [ "${DB_Name}" != "None" ]; then
         echo "You have install ${DB_Name}!"
         exit 1
     fi
 
     Database_Selection
+    if [ "${DBSelect}" = "0" ]; then
+        echo "DO NOT Install MySQL or MariaDB."
+        exit 1
+    fi
+    Echo_Red "The script will REMOVE MySQL/MariaDB installed via yum or apt-get and it's databases!!!"
     Press_Install
     Install_Database 2>&1 | tee /root/install_database.log
 }

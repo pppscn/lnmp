@@ -137,8 +137,8 @@ ServerAdmin ${email}
 php_admin_value open_basedir "${vhostdir}:/tmp/:/var/tmp/:/proc/"
 DocumentRoot "${vhostdir}"
 ServerName ${domain}
-ErrorLog "/www/log/${al_name}-error_log"
-CustomLog "/www/log/${al_name}-access_log" combined
+ErrorLog "/home/wwwlogs/${al_name}-error_log"
+CustomLog "/home/wwwlogs/${al_name}-access_log" combined
 <Directory "${vhostdir}">
     SetOutputFilter DEFLATE
     Options FollowSymLinks
@@ -191,12 +191,12 @@ Add_VHost()
         echo " domain list: ${moredomain}"
     fi
 
-    vhostdir="/www/web/${domain}"
+    vhostdir="/home/wwwroot/${domain}"
     echo "Please enter the directory for the domain: $domain"
-    Echo_Yellow "Default directory: /www/web/${domain}: "
+    Echo_Yellow "Default directory: /home/wwwroot/${domain}: "
     read vhostdir
     if [ "${vhostdir}" == "" ]; then
-        vhostdir="/www/web/${domain}"
+        vhostdir="/home/wwwroot/${domain}"
     fi
     echo "Virtual Host Directory: ${vhostdir}"
 
@@ -675,7 +675,7 @@ Add_SSL_Info_Menu()
         if [ "${al_name}" == "" ]; then
             al_name="${domain}"
         fi
-        al="access_log  /www/log/${al_name}.log;"
+        al="access_log  /home/wwwlogs/${al_name}.log;"
         echo "You access log filename: ${al_name}.log"
     fi
 
@@ -775,6 +775,8 @@ Install_Check_Acme.sh()
         rm -rf acme.sh-*
         sed -i 's/cat "\$CERT_PATH"$/#cat "\$CERT_PATH"/g' /usr/local/acme.sh/acme.sh
         if command -v yum >/dev/null 2>&1; then
+            yum -y update nss
+            yum -y install ca-certificates
             service crond restart
             chkconfig crond on
         elif command -v apt-get >/dev/null 2>&1; then
@@ -833,8 +835,8 @@ ServerAdmin ${email}
 php_admin_value open_basedir "${vhostdir}:/tmp/:/var/tmp/:/proc/"
 DocumentRoot ${vhostdir}
 ServerName ${domain}:443
-ErrorLog "/www/log/${al_name}-error_log"
-CustomLog "/www/log/${al_name}-access_log" combined
+ErrorLog "/home/wwwlogs/${al_name}-error_log"
+CustomLog "/home/wwwlogs/${al_name}-access_log" combined
 SSLEngine on
 SSLCertificateFile ${ssl_certificate}
 SSLCertificateKeyFile ${ssl_certificate_key}

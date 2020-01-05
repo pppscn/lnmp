@@ -15,8 +15,8 @@ Libunwind_Ver='libunwind-1.2.1'
 Libicu4c_Ver='icu4c-63_1'
 Boost_Ver='boost_1_59_0'
 Boost_New_Ver='boost_1_69_0'
-Openssl_Ver='openssl-1.0.2s'
-Openssl_New_Ver='openssl-1.1.1c'
+Openssl_Ver='openssl-1.0.2t'
+Openssl_New_Ver='openssl-1.1.1d'
 Nghttp2_Ver='nghttp2-1.38.0'
 Luajit_Ver='luajit2-2.1-20190329'
 LuaNginxModule='lua-nginx-module-0.10.14'
@@ -58,14 +58,16 @@ elif [ "${PHPSelect}" = "6" ]; then
 elif [ "${PHPSelect}" = "7" ]; then
     Php_Ver='php-7.1.33'
 elif [ "${PHPSelect}" = "8" ]; then
-    Php_Ver='php-7.2.24'
+    Php_Ver='php-7.2.26'
 elif [ "${PHPSelect}" = "9" ]; then
-    Php_Ver='php-7.3.11'
+    Php_Ver='php-7.3.13'
+elif [ "${PHPSelect}" = "10" ]; then
+    Php_Ver='php-7.4.1'
 fi
 if [[ "${PHPSelect}" =~ ^[123]$ ]]; then
     PhpMyAdmin_Ver='phpMyAdmin-4.0.10.20-all-languages'
 else
-    PhpMyAdmin_Ver='phpMyAdmin-4.8.5-all-languages'
+    PhpMyAdmin_Ver='phpMyAdmin-4.9.1-all-languages'
 fi
 APR_Ver='apr-1.7.0'
 APR_Util_Ver='apr-util-1.6.1'

@@ -16,7 +16,7 @@ else
     Stack=$1
 fi
 
-LNMP_Ver='1.6'
+LNMP_Ver='1.7'
 . lnmp.conf
 . include/main.sh
 . include/init.sh
@@ -149,6 +149,8 @@ Install_PHP()
         Install_PHP_72
     elif [ "${PHPSelect}" = "9" ]; then
         Install_PHP_73
+    elif [ "${PHPSelect}" = "10" ]; then
+        Install_PHP_74
     fi
     Clean_PHP_Src_Dir
 }

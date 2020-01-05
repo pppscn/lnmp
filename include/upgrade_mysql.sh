@@ -34,7 +34,6 @@ Upgrade_MySQL51()
     fi
     sed -i '/set -ex;/,/done/d' Makefile
     Make_Install
-    cd ../
 
     groupadd mysql
     useradd -s /sbin/nologin -M -g mysql mysql
@@ -417,8 +416,8 @@ no-auto-rehash
 [myisamchk]
 key_buffer_size = 20M
 sort_buffer_size = 20M
-read_buffer = 2M
-write_buffer = 2M
+read_buffer_size = 2M
+write_buffer_size = 2M
 
 [mysqlhotcopy]
 interactive-timeout
@@ -513,8 +512,8 @@ no-auto-rehash
 [myisamchk]
 key_buffer_size = 20M
 sort_buffer_size = 20M
-read_buffer = 2M
-write_buffer = 2M
+read_buffer_size = 2M
+write_buffer_size = 2M
 
 [mysqlhotcopy]
 interactive-timeout
@@ -544,7 +543,7 @@ EOF
 Restore_Start_MySQL()
 {
     chgrp -R mysql /usr/local/mysql/.
-    \cp ${cur_dir}/src/mysql-${mysql_version}/support-files/mysql.server /etc/init.d/mysql
+    \cp support-files/mysql.server /etc/init.d/mysql
     chmod 755 /etc/init.d/mysql
 
     ldconfig

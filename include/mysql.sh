@@ -206,7 +206,6 @@ Install_MySQL_51()
     fi
     sed -i '/set -ex;/,/done/d' Makefile
     Make_Install
-    cd ../
 
     groupadd mysql
     useradd -s /sbin/nologin -M -g mysql mysql
@@ -598,8 +597,8 @@ no-auto-rehash
 [myisamchk]
 key_buffer_size = 20M
 sort_buffer_size = 20M
-read_buffer = 2M
-write_buffer = 2M
+read_buffer_size = 2M
+write_buffer_size = 2M
 
 [mysqlhotcopy]
 interactive-timeout
@@ -696,8 +695,8 @@ no-auto-rehash
 [myisamchk]
 key_buffer_size = 20M
 sort_buffer_size = 20M
-read_buffer = 2M
-write_buffer = 2M
+read_buffer_size = 2M
+write_buffer_size = 2M
 
 [mysqlhotcopy]
 interactive-timeout
