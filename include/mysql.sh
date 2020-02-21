@@ -385,6 +385,7 @@ EOF
     /usr/local/mysql/scripts/mysql_install_db --defaults-file=/etc/my.cnf --basedir=/usr/local/mysql --datadir=${MySQL_Data_Dir} --user=mysql
     chgrp -R mysql /usr/local/mysql/.
     \cp support-files/mysql.server /etc/init.d/mysql
+    \cp ${cur_dir}/init.d/mysql.service /etc/systemd/system/mysql.service
     chmod 755 /etc/init.d/mysql
 
     cat > /etc/ld.so.conf.d/mysql.conf<<EOF
@@ -515,6 +516,7 @@ EOF
     /usr/local/mysql/scripts/mysql_install_db --defaults-file=/etc/my.cnf --basedir=/usr/local/mysql --datadir=${MySQL_Data_Dir} --user=mysql
     chgrp -R mysql /usr/local/mysql/.
     \cp support-files/mysql.server /etc/init.d/mysql
+    \cp ${cur_dir}/init.d/mysql.service /etc/systemd/system/mysql.service
     chmod 755 /etc/init.d/mysql
 
     cat > /etc/ld.so.conf.d/mysql.conf<<EOF
@@ -612,6 +614,7 @@ EOF
     /usr/local/mysql/bin/mysqld --initialize-insecure --basedir=/usr/local/mysql --datadir=${MySQL_Data_Dir} --user=mysql
     chgrp -R mysql /usr/local/mysql/.
     \cp support-files/mysql.server /etc/init.d/mysql
+    \cp ${cur_dir}/init.d/mysql.service /etc/systemd/system/mysql.service
     chmod 755 /etc/init.d/mysql
 
     cat > /etc/ld.so.conf.d/mysql.conf<<EOF
@@ -632,7 +635,7 @@ Install_MySQL_80()
     Tar_Cd ${Mysql_Ver}.tar.gz ${Mysql_Ver}
     Install_Boost
     mkdir build && cd build
-    cmake .. -DCMAKE_C_COMPILER=/opt/rh/devtoolset-7/root/usr/bin/gcc -DCMAKE_CXX_COMPILER=/opt/rh/devtoolset-7/root/usr/bin/g++ -DCMAKE_INSTALL_PREFIX=/usr/local/mysql -DSYSCONFDIR=/etc -DWITH_MYISAM_STORAGE_ENGINE=1 -DWITH_INNOBASE_STORAGE_ENGINE=1 -DWITH_PARTITION_STORAGE_ENGINE=1 -DWITH_FEDERATED_STORAGE_ENGINE=1 -DEXTRA_CHARSETS=all -DDEFAULT_CHARSET=utf8mb4 -DDEFAULT_COLLATION=utf8mb4_general_ci -DWITH_EMBEDDED_SERVER=1 -DENABLED_LOCAL_INFILE=1 ${MySQL_WITH_BOOST}
+    cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local/mysql -DSYSCONFDIR=/etc -DWITH_MYISAM_STORAGE_ENGINE=1 -DWITH_INNOBASE_STORAGE_ENGINE=1 -DWITH_PARTITION_STORAGE_ENGINE=1 -DWITH_FEDERATED_STORAGE_ENGINE=1 -DEXTRA_CHARSETS=all -DDEFAULT_CHARSET=utf8mb4 -DDEFAULT_COLLATION=utf8mb4_general_ci -DWITH_EMBEDDED_SERVER=1 -DENABLED_LOCAL_INFILE=1 ${MySQL_WITH_BOOST}
     Make_Install
 
     groupadd mysql
@@ -710,6 +713,7 @@ EOF
     /usr/local/mysql/bin/mysqld --initialize-insecure --basedir=/usr/local/mysql --datadir=${MySQL_Data_Dir} --user=mysql
     chgrp -R mysql /usr/local/mysql/.
     \cp support-files/mysql.server /etc/init.d/mysql
+    \cp ${cur_dir}/init.d/mysql.service /etc/systemd/system/mysql.service
     chmod 755 /etc/init.d/mysql
 
     cat > /etc/ld.so.conf.d/mysql.conf<<EOF

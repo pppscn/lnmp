@@ -27,8 +27,10 @@ Upgrade_Date=$(date +"%Y%m%d%H%M%S")
 . include/upgrade_mariadb.sh
 . include/upgrade_mysql2mariadb.sh
 . include/upgrade_phpmyadmin.sh
+. include/upgrade_mphp.sh
 
 Get_Dist_Name
+Get_Dist_Version
 MemTotal=`free -m | grep Mem | awk '{print  $2}'`
 
 Display_Upgrade_Menu()
@@ -40,6 +42,7 @@ Display_Upgrade_Menu()
     echo "5: Upgrade PHP for LNMPA or LAMP"
     echo "6: Upgrade MySQL to MariaDB"
     echo "7: Upgrade phpMyAdmin"
+    echo "8: Upgrade Multiple PHP"
     echo "exit: Exit current script"
     echo "###################################################"
     read -p "Enter your choice (1, 2, 3, 4, 5, 6, 7 or exit): " action
@@ -80,6 +83,9 @@ fi
         ;;
     7|[pP][hH][pP][mM][yY][aA][dD][mM][iI][nN])
         Upgrade_phpMyAdmin 2>&1 | tee /root/upgrade_phpmyadmin${Upgrade_Date}.log
+        ;;
+    8|[mM][pP][hH][pP])
+        Upgrade_Multiplephp 2>&1 | tee /root/upgrade_mphp${Upgrade_Date}.log
         ;;
     [eE][xX][iI][tT])
         exit 1

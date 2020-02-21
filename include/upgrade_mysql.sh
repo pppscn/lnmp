@@ -450,7 +450,7 @@ Upgrade_MySQL80()
     Tar_Cd ${mysql_src} mysql-${mysql_version}
     Install_Boost
     mkdir build && cd build
-    cmake .. -DCMAKE_C_COMPILER=/opt/rh/devtoolset-7/root/usr/bin/gcc -DCMAKE_CXX_COMPILER=/opt/rh/devtoolset-7/root/usr/bin/g++ -DCMAKE_INSTALL_PREFIX=/usr/local/mysql -DSYSCONFDIR=/etc -DWITH_MYISAM_STORAGE_ENGINE=1 -DWITH_INNOBASE_STORAGE_ENGINE=1 -DWITH_PARTITION_STORAGE_ENGINE=1 -DWITH_FEDERATED_STORAGE_ENGINE=1 -DEXTRA_CHARSETS=all -DDEFAULT_CHARSET=utf8mb4 -DDEFAULT_COLLATION=utf8mb4_general_ci -DWITH_EMBEDDED_SERVER=1 -DENABLED_LOCAL_INFILE=1 ${MySQL_WITH_BOOST}
+    cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local/mysql -DSYSCONFDIR=/etc -DWITH_MYISAM_STORAGE_ENGINE=1 -DWITH_INNOBASE_STORAGE_ENGINE=1 -DWITH_PARTITION_STORAGE_ENGINE=1 -DWITH_FEDERATED_STORAGE_ENGINE=1 -DEXTRA_CHARSETS=all -DDEFAULT_CHARSET=utf8mb4 -DDEFAULT_COLLATION=utf8mb4_general_ci -DWITH_EMBEDDED_SERVER=1 -DENABLED_LOCAL_INFILE=1 ${MySQL_WITH_BOOST}
     Make_Install
 
     groupadd mysql
@@ -660,10 +660,13 @@ Upgrade_MySQL()
         if [ $? -eq 0 ]; then
             echo "Download ${mysql_src} successfully!"
         else
+            wget -c --progress=bar:force https://cdn.mysql.com/archives/MySQL-${mysql_short_version}/${mysql_src}
+            if [ $? -ne 0 ]; then
             echo "You enter MySQL Version was: ${mysql_version}"
             Echo_Red "Error! You entered a wrong version number, please check!"
             sleep 5
             exit 1
+            fi
         fi
     fi
     echo "============================check files=================================="

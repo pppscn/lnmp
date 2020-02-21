@@ -271,6 +271,7 @@ EOF
 
     echo "Copy php-fpm init.d file..."
     \cp ${cur_dir}/src/${Php_Ver}/sapi/fpm/init.d.php-fpm /etc/init.d/php-fpm
+    \cp ${cur_dir}/init.d/php-fpm.service /etc/systemd/system/php-fpm.service
     chmod +x /etc/init.d/php-fpm
 fi
 }
@@ -367,7 +368,9 @@ EOF
 
     echo "Copy php-fpm init.d file..."
     \cp ${cur_dir}/src/${Php_Ver}/sapi/fpm/init.d.php-fpm /etc/init.d/php-fpm
+    \cp ${cur_dir}/init.d/php-fpm.service /etc/systemd/system/php-fpm.service
     chmod +x /etc/init.d/php-fpm
+    chmod +x /etc/systemd/system/php-fpm.service
 fi
 }
 
@@ -463,7 +466,9 @@ EOF
 
     echo "Copy php-fpm init.d file..."
     \cp ${cur_dir}/src/${Php_Ver}/sapi/fpm/init.d.php-fpm /etc/init.d/php-fpm
+    \cp ${cur_dir}/init.d/php-fpm.service /etc/systemd/system/php-fpm.service
     chmod +x /etc/init.d/php-fpm
+    chmod +x /etc/systemd/system/php-fpm.service
 fi
 }
 
@@ -559,6 +564,7 @@ EOF
 
     echo "Copy php-fpm init.d file..."
     \cp ${cur_dir}/src/${Php_Ver}/sapi/fpm/init.d.php-fpm /etc/init.d/php-fpm
+    \cp ${cur_dir}/init.d/php-fpm.service /etc/systemd/system/php-fpm.service
     chmod +x /etc/init.d/php-fpm
 fi
 }
@@ -628,6 +634,7 @@ EOF
 
     echo "Copy php-fpm init.d file..."
     \cp ${cur_dir}/src/${Php_Ver}/sapi/fpm/init.d.php-fpm /etc/init.d/php-fpm
+    \cp ${cur_dir}/init.d/php-fpm.service /etc/systemd/system/php-fpm.service
     chmod +x /etc/init.d/php-fpm
 fi
 }
@@ -697,6 +704,7 @@ EOF
 
     echo "Copy php-fpm init.d file..."
     \cp ${cur_dir}/src/${Php_Ver}/sapi/fpm/init.d.php-fpm /etc/init.d/php-fpm
+    \cp ${cur_dir}/init.d/php-fpm.service /etc/systemd/system/php-fpm.service
     chmod +x /etc/init.d/php-fpm
 fi
 }
@@ -766,6 +774,7 @@ EOF
 
     echo "Copy php-fpm init.d file..."
     \cp ${cur_dir}/src/${Php_Ver}/sapi/fpm/init.d.php-fpm /etc/init.d/php-fpm
+    \cp ${cur_dir}/init.d/php-fpm.service /etc/systemd/system/php-fpm.service
     chmod +x /etc/init.d/php-fpm
 fi
 }
@@ -835,6 +844,7 @@ EOF
 
     echo "Copy php-fpm init.d file..."
     \cp ${cur_dir}/src/${Php_Ver}/sapi/fpm/init.d.php-fpm /etc/init.d/php-fpm
+    \cp ${cur_dir}/init.d/php-fpm.service /etc/systemd/system/php-fpm.service
     chmod +x /etc/init.d/php-fpm
 fi
 }
@@ -870,7 +880,7 @@ Install_PHP_74()
     Pear_Pecl_Set
     Install_Composer
 
-    echo "Install ZendGuardLoader for PHP 7.3..."
+    echo "Install ZendGuardLoader for PHP 7.4..."
     echo "unavailable now."
 
 if [ "${Stack}" = "lnmp" ]; then
@@ -904,6 +914,7 @@ EOF
 
     echo "Copy php-fpm init.d file..."
     \cp ${cur_dir}/src/${Php_Ver}/sapi/fpm/init.d.php-fpm /etc/init.d/php-fpm
+    \cp ${cur_dir}/init.d/php-fpm.service /etc/systemd/system/php-fpm.service
     chmod +x /etc/init.d/php-fpm
 fi
 }

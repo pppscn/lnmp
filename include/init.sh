@@ -243,14 +243,18 @@ CentOS_Dependent()
 
     yum -y update nss
 
-    if [ "${DISTRO}" = "CentOS" ] && echo "${CentOS_Version}" | grep -Eqi "^8\."; then
+    if [ "${DISTRO}" = "CentOS" ] && echo "${CentOS_Version}" | grep -Eqi "^8"; then
         dnf --enablerepo=PowerTools install rpcgen -y
         dnf --enablerepo=PowerTools install oniguruma-devel -y
     fi
 
-    if [ "${DISTRO}" = "CentOS" ] && echo "${CentOS_Version}" | grep -Eqi "^7\."; then
+    if [ "${DISTRO}" = "CentOS" ] && echo "${CentOS_Version}" | grep -Eqi "^7"; then
         yum -y install https://dl.fedoraproject.org/pub/epel/7/x86_64/Packages/o/oniguruma-5.9.5-3.el7.x86_64.rpm
         yum -y install https://dl.fedoraproject.org/pub/epel/7/x86_64/Packages/o/oniguruma-devel-5.9.5-3.el7.x86_64.rpm
+    fi
+
+    if [ "${DISTRO}" = "Fedora" ]; then
+        dnf install chkconfig -y
     fi
 
     if [ -s /etc/yum.conf.lnmp ]; then
@@ -393,7 +397,7 @@ Install_Mhash()
 
 Install_Freetype()
 {
-    if echo "${Ubuntu_Version}" | grep -Eqi "1[89]\." || echo "${Mint_Version}" | grep -Eqi "19\." || echo "${Deepin_Version}" | grep -Eqi "15\.[7-9]|1[0-9]" || echo "${Debian_Version}" | grep -Eqi "9|10\."; then
+    if echo "${Ubuntu_Version}" | grep -Eqi "^1[89]\." || echo "${Mint_Version}" | grep -Eqi "^19\." || echo "${Deepin_Version}" | grep -Eqi "^15\.[7-9]|1[0-9]" || echo "${Debian_Version}" | grep -Eqi "^9|10"; then
         Download_Files ${Download_Mirror}/lib/freetype/${Freetype_New_Ver}.tar.bz2 ${Freetype_New_Ver}.tar.bz2
         Echo_Blue "[+] Installing ${Freetype_New_Ver}"
         Tarj_Cd ${Freetype_New_Ver}.tar.bz2 ${Freetype_New_Ver}
@@ -725,6 +729,13 @@ Remove_Error_Libcurl()
 
 Add_Swap()
 {
+    if ! command -v python >/dev/null 2>&1; then
+        if [ "$PM" = "yum" ]; then
+            yum -y install python2
+        elif [ "$PM" = "apt" ]; then
+            apt-get --no-install-recommends install -y python
+        fi
+    fi
     if command -v python >/dev/null 2>&1; then
         Disk_Avail=$(${cur_dir}/include/disk.py)
     elif command -v python3 >/dev/null 2>&1; then
@@ -761,6 +772,7 @@ Add_Swap()
     Swap_Total=$(free -m | grep Swap | awk '{print  $2}')
     if [[ "${Enable_Swap}" = "y" && "${Swap_Total}" -le 512 && ! -s /var/swapfile ]]; then
         echo "Add Swap file..."
+        [ $(cat /proc/sys/vm/swappiness) -eq 0 ] && sysctl vm.swappiness=10
         dd if=/dev/zero of=/var/swapfile bs=1M count=${DD_Count}
         chmod 0600 /var/swapfile
         echo "Enable Swap..."

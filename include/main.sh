@@ -1,8 +1,8 @@
 #!/bin/bash
 
-DB_Info=('MySQL 5.1.73' 'MySQL 5.5.62' 'MySQL 5.6.44' 'MySQL 5.7.26' 'MySQL 8.0.17' 'MariaDB 5.5.63' 'MariaDB 10.0.38' 'MariaDB 10.1.40' 'MariaDB 10.2.24' 'MariaDB 10.3.15')
-PHP_Info=('PHP 5.2.17' 'PHP 5.3.29' 'PHP 5.4.45' 'PHP 5.5.38' 'PHP 5.6.40' 'PHP 7.0.33' 'PHP 7.1.33' 'PHP 7.2.26' 'PHP 7.3.13' 'PHP 7.4.1')
-Apache_Info=('Apache 2.2.34' 'Apache 2.4.39')
+DB_Info=('MySQL 5.1.73' 'MySQL 5.5.62' 'MySQL 5.6.46' 'MySQL 5.7.28' 'MySQL 8.0.18' 'MariaDB 5.5.66' 'MariaDB 10.1.43' 'MariaDB 10.2.30' 'MariaDB 10.3.21' 'MariaDB 10.4.11')
+PHP_Info=('PHP 5.2.17' 'PHP 5.3.29' 'PHP 5.4.45' 'PHP 5.5.38' 'PHP 5.6.40' 'PHP 7.0.33' 'PHP 7.1.33' 'PHP 7.2.28' 'PHP 7.3.15' 'PHP 7.4.3')
+Apache_Info=('Apache 2.2.34' 'Apache 2.4.41')
 
 Database_Selection()
 {
@@ -63,8 +63,8 @@ Database_Selection()
         DBSelect="2"
     esac
 
-    if [[ "${DBSelect}" =~ ^5|10$ ]] && [ `free -m | grep Mem | awk '{print  $2}'` -le 1024 ]; then
-        echo "Memory less than 1GB, can't install MySQL 8.0 or MairaDB 10.3!"
+    if [[ "${DBSelect}" =~ ^[59]|10$ ]] && [ `free -m | grep Mem | awk '{print  $2}'` -le 1024 ]; then
+        echo "Memory less than 1GB, can't install MySQL 8.0 or MairaDB 10.3+!"
         exit 1
     fi
 
@@ -328,13 +328,30 @@ Install_LSB()
 
 Get_Dist_Version()
 {
-    if command -v python2 >/dev/null 2>&1; then
-        eval ${DISTRO}_Version=$(python2 -c 'import platform; print platform.linux_distribution()[1]')
-    elif command -v python3 >/dev/null 2>&1; then
-        eval ${DISTRO}_Version=$(python3 -c 'import platform; print(platform.linux_distribution()[1])')
-    else
-        Install_LSB
-        eval ${DISTRO}_Version=`lsb_release -rs`
+    if command -v lsb_release >/dev/null 2>&1; then
+        DISTRO_Version=$(lsb_release -sr)
+        eval ${DISTRO}_Version=$(lsb_release -sr)
+    elif [ -f /etc/lsb-release ]; then
+        . /etc/lsb-release
+        DISTRO_Version="$DISTRIB_RELEASE"
+        eval ${DISTRO}_Version="$DISTRIB_RELEASE"
+    elif [ -f /etc/os-release ]; then
+        . /etc/os-release
+        DISTRO_Version="$VERSION_ID"
+        eval ${DISTRO}_Version="$VERSION_ID"
+    fi
+    if [[ "${DISTRO}" = "" || "${DISTRO_Version}" = "" ]]; then
+        if command -v python2 >/dev/null 2>&1; then
+            DISTRO_Version=$(python2 -c 'import platform; print platform.linux_distribution()[1]')
+            eval ${DISTRO}_Version=$(python2 -c 'import platform; print platform.linux_distribution()[1]')
+        elif command -v python3 >/dev/null 2>&1; then
+            DISTRO_Version=$(python3 -c 'import platform; print(platform.linux_distribution()[1])')
+            eval ${DISTRO}_Version=$(python3 -c 'import platform; print(platform.linux_distribution()[1])')
+        else
+            Install_LSB
+            DISTRO_Version=`lsb_release -rs`
+            eval ${DISTRO}_Version=`lsb_release -rs`
+        fi
     fi
 }
 
@@ -535,11 +552,15 @@ StartUp()
 {
     init_name=$1
     echo "Add ${init_name} service at system startup..."
-    if [ "$PM" = "yum" ]; then
-        chkconfig --add ${init_name}
-        chkconfig ${init_name} on
-    elif [ "$PM" = "apt" ]; then
-        update-rc.d -f ${init_name} defaults
+    if command -v systemctl >/dev/null 2>&1 && [[ -s /etc/systemd/system/${init_name}.service || -s /lib/systemd/system/${init_name}.service || -s /usr/lib/systemd/system/${init_name}.service ]]; then
+        systemctl enable ${init_name}.service
+    else
+        if [ "$PM" = "yum" ]; then
+            chkconfig --add ${init_name}
+            chkconfig ${init_name} on
+        elif [ "$PM" = "apt" ]; then
+            update-rc.d -f ${init_name} defaults
+        fi
     fi
 }
 
@@ -547,11 +568,15 @@ Remove_StartUp()
 {
     init_name=$1
     echo "Removing ${init_name} service at system startup..."
-    if [ "$PM" = "yum" ]; then
-        chkconfig ${init_name} off
-        chkconfig --del ${init_name}
-    elif [ "$PM" = "apt" ]; then
-        update-rc.d -f ${init_name} remove
+    if command -v systemctl >/dev/null 2>&1 && [[ -s /etc/systemd/system/${init_name}.service || -s /lib/systemd/system/${init_name}.service || -s /usr/lib/systemd/system/${init_name}.service ]]; then
+        systemctl disable ${init_name}.service
+    else
+        if [ "$PM" = "yum" ]; then
+            chkconfig ${init_name} off
+            chkconfig --del ${init_name}
+        elif [ "$PM" = "apt" ]; then
+            update-rc.d -f ${init_name} remove
+        fi
     fi
 }
 

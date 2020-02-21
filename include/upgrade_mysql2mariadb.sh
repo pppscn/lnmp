@@ -108,7 +108,10 @@ Upgrade_MySQL2MariaDB()
     echo "Starting upgrade MySQL to MariaDB..."
     MariaDB_WITHSSL
     Tar_Cd mariadb-${mariadb_version}.tar.gz mariadb-${mariadb_version}
-    if echo "${mariadb_version}" | grep -Eqi '^10.[123].';then
+    if echo "${mariadb_version}" | grep -Eqi '^10.4.';then
+        patch -p1 < ${cur_dir}/src/patch/mariadb_10.4_install_db.patch
+        cmake -DCMAKE_INSTALL_PREFIX=/usr/local/mariadb -DMYSQL_UNIX_ADDR=/tmp/mysql.sock -DEXTRA_CHARSETS=all -DDEFAULT_CHARSET=utf8mb4 -DDEFAULT_COLLATION=utf8mb4_general_ci -DWITH_READLINE=1 -DWITH_EMBEDDED_SERVER=1 -DENABLED_LOCAL_INFILE=1 -DWITHOUT_TOKUDB=1
+    elif echo "${mariadb_version}" | grep -Eqi '^10.[123].';then
         cmake -DCMAKE_INSTALL_PREFIX=/usr/local/mariadb -DWITH_ARIA_STORAGE_ENGINE=1 -DWITH_XTRADB_STORAGE_ENGINE=1 -DWITH_INNOBASE_STORAGE_ENGINE=1 -DWITH_PARTITION_STORAGE_ENGINE=1 -DWITH_MYISAM_STORAGE_ENGINE=1 -DWITH_FEDERATED_STORAGE_ENGINE=1 -DEXTRA_CHARSETS=all -DDEFAULT_CHARSET=utf8mb4 -DDEFAULT_COLLATION=utf8mb4_general_ci -DWITH_READLINE=1 -DWITH_EMBEDDED_SERVER=1 -DENABLED_LOCAL_INFILE=1 -DWITHOUT_TOKUDB=1 ${MariaDBWITHSSL}
     else
         cmake -DCMAKE_INSTALL_PREFIX=/usr/local/mariadb -DWITH_ARIA_STORAGE_ENGINE=1 -DWITH_XTRADB_STORAGE_ENGINE=1 -DWITH_INNOBASE_STORAGE_ENGINE=1 -DWITH_PARTITION_STORAGE_ENGINE=1 -DWITH_MYISAM_STORAGE_ENGINE=1 -DWITH_FEDERATED_STORAGE_ENGINE=1 -DEXTRA_CHARSETS=all -DDEFAULT_CHARSET=utf8mb4 -DDEFAULT_COLLATION=utf8mb4_general_ci -DWITH_READLINE=1 -DWITH_EMBEDDED_SERVER=1 -DENABLED_LOCAL_INFILE=1 ${MariaDBWITHSSL}
@@ -201,6 +204,7 @@ EOF
     /usr/local/mariadb/scripts/mysql_install_db --defaults-file=/etc/my.cnf --basedir=/usr/local/mariadb --datadir=${MariaDB_Data_Dir} --user=mariadb
     chgrp -R mariadb /usr/local/mariadb/.
     \cp support-files/mysql.server /etc/init.d/mariadb
+    \cp ${cur_dir}/init.d/mariadb.service /etc/systemd/system/mariadb.service
     chmod 755 /etc/init.d/mariadb
 
     Mariadb_Sec_Setting
