@@ -181,8 +181,8 @@ ServerAdmin ${email}
 php_admin_value open_basedir "${vhostdir}:/tmp/:/var/tmp/:/proc/"
 DocumentRoot "${vhostdir}"
 ServerName ${domain}
-ErrorLog "/home/wwwlogs/${al_name}-error_log"
-CustomLog "/home/wwwlogs/${al_name}-access_log" combined
+ErrorLog "/www/log/${al_name}-error_log"
+CustomLog "/www/log/${al_name}-access_log" combined
 <Directory "${vhostdir}">
     SetOutputFilter DEFLATE
     Options FollowSymLinks
@@ -240,12 +240,12 @@ Add_VHost()
         echo " domain list: ${moredomain}"
     fi
 
-    vhostdir="/home/wwwroot/${domain}"
+    vhostdir="/www/web/${domain}"
     echo "Please enter the directory for the domain: $domain"
-    Echo_Yellow "Default directory: /home/wwwroot/${domain}: "
+    Echo_Yellow "Default directory: /www/web/${domain}: "
     read vhostdir
     if [ "${vhostdir}" == "" ]; then
-        vhostdir="/home/wwwroot/${domain}"
+        vhostdir="/www/web/${domain}"
     fi
     echo "Virtual Host Directory: ${vhostdir}"
 
@@ -261,7 +261,7 @@ Add_VHost()
         if [ "${al_name}" == "" ]; then
             al_name="${domain}"
         fi
-        al="access_log  /home/wwwlogs/${al_name}.log;"
+        al="access_log  /www/log/${al_name}.log;"
         echo "You access log filename: ${al_name}.log"
     fi
 
@@ -310,8 +310,8 @@ Add_VHost()
     echo "Create Virtul Host directory......"
     mkdir -p ${vhostdir}
     if [ "${access_log}" == "y" ]; then
-        touch /home/wwwlogs/${al_name}.log
-        touch /home/wwwlogs/${al_name}-access_log
+        touch /www/log/${al_name}.log
+        touch /www/log/${al_name}-access_log
     fi
     echo "set permissions of Virtual Host directory......"
     chmod -R 755 ${vhostdir}
@@ -733,7 +733,7 @@ Add_SSL_Info_Menu()
         if [ "${al_name}" == "" ]; then
             al_name="${domain}"
         fi
-        al="access_log  /home/wwwlogs/${al_name}.log;"
+        al="access_log  /www/log/${al_name}.log;"
         echo "You access log filename: ${al_name}.log"
     fi
 
