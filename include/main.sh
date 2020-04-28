@@ -1,7 +1,7 @@
 #!/bin/bash
 
 DB_Info=('MySQL 5.1.73' 'MySQL 5.5.62' 'MySQL 5.6.46' 'MySQL 5.7.28' 'MySQL 8.0.18' 'MariaDB 5.5.66' 'MariaDB 10.1.43' 'MariaDB 10.2.30' 'MariaDB 10.3.21' 'MariaDB 10.4.11')
-PHP_Info=('PHP 5.2.17' 'PHP 5.3.29' 'PHP 5.4.45' 'PHP 5.5.38' 'PHP 5.6.40' 'PHP 7.0.33' 'PHP 7.1.33' 'PHP 7.2.28' 'PHP 7.3.15' 'PHP 7.4.3')
+PHP_Info=('PHP 5.2.17' 'PHP 5.3.29' 'PHP 5.4.45' 'PHP 5.5.38' 'PHP 5.6.40' 'PHP 7.0.33' 'PHP 7.1.33' 'PHP 7.2.30' 'PHP 7.3.17' 'PHP 7.4.5')
 Apache_Info=('Apache 2.2.34' 'Apache 2.4.41')
 
 Database_Selection()
@@ -276,11 +276,10 @@ Apache_Selection()
 
 Kill_PM()
 {
-    if ps aux | grep "yum" | grep -qv "grep"; then
-        if command -v killall >/dev/null 2>&1; then
-            killall yum
-        else
-            kill `pidof yum`
+    if ps aux | grep -E "yum|dnf" | grep -qv "grep"; then
+        kill -9 $(ps -ef|grep -E "yum|dnf"|grep -v grep|awk '{print $2}')
+        if [ -s /var/run/yum.pid ]; then
+            rm -f /var/run/yum.pid
         fi
     elif ps aux | grep "apt-get" | grep -qv "grep"; then
         if command -v killall >/dev/null 2>&1; then
@@ -330,29 +329,24 @@ Get_Dist_Version()
 {
     if command -v lsb_release >/dev/null 2>&1; then
         DISTRO_Version=$(lsb_release -sr)
-        eval ${DISTRO}_Version=$(lsb_release -sr)
     elif [ -f /etc/lsb-release ]; then
         . /etc/lsb-release
         DISTRO_Version="$DISTRIB_RELEASE"
-        eval ${DISTRO}_Version="$DISTRIB_RELEASE"
     elif [ -f /etc/os-release ]; then
         . /etc/os-release
         DISTRO_Version="$VERSION_ID"
-        eval ${DISTRO}_Version="$VERSION_ID"
     fi
     if [[ "${DISTRO}" = "" || "${DISTRO_Version}" = "" ]]; then
         if command -v python2 >/dev/null 2>&1; then
             DISTRO_Version=$(python2 -c 'import platform; print platform.linux_distribution()[1]')
-            eval ${DISTRO}_Version=$(python2 -c 'import platform; print platform.linux_distribution()[1]')
         elif command -v python3 >/dev/null 2>&1; then
             DISTRO_Version=$(python3 -c 'import platform; print(platform.linux_distribution()[1])')
-            eval ${DISTRO}_Version=$(python3 -c 'import platform; print(platform.linux_distribution()[1])')
         else
             Install_LSB
             DISTRO_Version=`lsb_release -rs`
-            eval ${DISTRO}_Version=`lsb_release -rs`
         fi
     fi
+    printf -v "${DISTRO}_Version" '%s' "${DISTRO_Version}"
 }
 
 Get_Dist_Name()
@@ -472,6 +466,19 @@ Tarj_Cd()
     fi
 }
 
+TarJ_Cd()
+{
+    local FileName=$1
+    local DirName=$2
+    cd ${cur_dir}/src
+    [[ -d "${DirName}" ]] && rm -rf ${DirName}
+    echo "Uncompress ${FileName}..."
+    tar Jxf ${FileName}
+    if [ -n "${DirName}" ]; then
+        echo "cd ${DirName}..."
+        cd ${DirName}
+    fi
+}
 Check_LNMPConf()
 {
     if [ ! -s "${cur_dir}/lnmp.conf" ]; then

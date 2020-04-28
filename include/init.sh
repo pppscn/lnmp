@@ -154,13 +154,15 @@ Ubuntu_Modify_Source()
     elif grep -Eqi "17.04" /etc/*-release || echo "${Ubuntu_Version}" | grep -Eqi '^17.04'; then
         CodeName='zesty'
     elif grep -Eqi "17.10" /etc/*-release || echo "${Ubuntu_Version}" | grep -Eqi '^17.10'; then
-        Ubuntu_Deadline artful
+        CodeName='artful'
     elif grep -Eqi "16.04" /etc/*-release || echo "${Ubuntu_Version}" | grep -Eqi '^16.04'; then
         Ubuntu_Deadline xenial
     elif grep -Eqi "18.10" /etc/*-release || echo "${Ubuntu_Version}" | grep -Eqi '^18.10'; then
-        Ubuntu_Deadline cosmic
+        CodeName='cosmic'
     elif grep -Eqi "19.04" /etc/*-release || echo "${Ubuntu_Version}" | grep -Eqi '^19.04'; then
-        Ubuntu_Deadline disco
+        CodeName='disco'
+    elif grep -Eqi "19.10" /etc/*-release || echo "${Ubuntu_Version}" | grep -Eqi '^19.10'; then
+        Ubuntu_Deadline eoan
     fi
     if [ "${CodeName}" != "" ]; then
         \cp /etc/apt/sources.list /etc/apt/sources.list.$(date +"%Y%m%d")
@@ -190,11 +192,9 @@ Check_Old_Releases_URL()
 
 Ubuntu_Deadline()
 {
-    trusty_deadline=`date -d "2019-7-22 00:00:00" +%s`
-    artful_deadline=`date -d "2018-7-31 00:00:00" +%s`
-    xenial_deadline=`date -d "2021-4-30 00:00:00" +%s`
-    cosmic_deadline=`date -d "2019-7-30 00:00:00" +%s`
-    disco_deadline=`date -d "2020-1-30 00:00:00" +%s`
+    trusty_deadline=`date -d "2022-4-30 00:00:00" +%s`
+    xenial_deadline=`date -d "2024-4-30 00:00:00" +%s`
+    eoan_deadline=`date -d "2020-7-30 00:00:00" +%s`
     cur_time=`date  +%s`
     case "$1" in
         trusty)
@@ -203,28 +203,16 @@ Ubuntu_Deadline()
                 Check_Old_Releases_URL trusty
             fi
             ;;
-        artful)
-            if [ ${cur_time} -gt ${artful_deadline} ]; then
-                echo "${cur_time} > ${artful_deadline}"
-                Check_Old_Releases_URL artful
-            fi
-            ;;
         xenial)
             if [ ${cur_time} -gt ${xenial_deadline} ]; then
                 echo "${cur_time} > ${xenial_deadline}"
                 Check_Old_Releases_URL xenial
             fi
             ;;
-        cosmic)
-            if [ ${cur_time} -gt ${cosmic_deadline} ]; then
-                echo "${cur_time} > ${cosmic_deadline}"
-                Check_Old_Releases_URL cosmic
-            fi
-            ;;
-        disco)
-            if [ ${cur_time} -gt ${disco_deadline} ]; then
-                echo "${cur_time} > ${disco_deadline}"
-                Check_Old_Releases_URL disco
+        eoan)
+            if [ ${cur_time} -gt ${eoan_deadline} ]; then
+                echo "${cur_time} > ${eoan_deadline}"
+                Check_Old_Releases_URL eoan
             fi
             ;;
     esac
@@ -238,12 +226,24 @@ CentOS_Dependent()
     fi
 
     Echo_Blue "[+] Yum installing dependent packages..."
-    for packages in make cmake gcc gcc-c++ gcc-g77 flex bison file libtool libtool-libs autoconf patch wget crontabs libjpeg libjpeg-devel libpng libpng-devel libpng10 libpng10-devel gd gd-devel libxml2 libxml2-devel zlib zlib-devel glib2 glib2-devel unzip tar bzip2 bzip2-devel libzip-devel libevent libevent-devel ncurses ncurses-devel curl curl-devel libcurl libcurl-devel e2fsprogs e2fsprogs-devel krb5 krb5-devel libidn libidn-devel openssl openssl-devel vim-minimal gettext gettext-devel ncurses-devel gmp-devel pspell-devel unzip libcap diffutils ca-certificates net-tools libc-client-devel psmisc libXpm-devel git-core c-ares-devel libicu-devel libxslt libxslt-devel xz expat-devel libaio-devel rpcgen libtirpc-devel perl python-devel cyrus-sasl-devel sqlite-devel oniguruma-devel;
+    for packages in make cmake gcc gcc-c++ gcc-g77 flex bison file libtool libtool-libs autoconf patch wget crontabs libjpeg libjpeg-devel libpng libpng-devel libpng10 libpng10-devel gd gd-devel libxml2 libxml2-devel zlib zlib-devel glib2 glib2-devel unzip tar bzip2 bzip2-devel libzip-devel libevent libevent-devel ncurses ncurses-devel curl curl-devel libcurl libcurl-devel e2fsprogs e2fsprogs-devel krb5 krb5-devel libidn libidn-devel openssl openssl-devel pcre-devel gettext gettext-devel ncurses-devel gmp-devel pspell-devel unzip libcap diffutils ca-certificates net-tools libc-client-devel psmisc libXpm-devel git-core c-ares-devel libicu-devel libxslt libxslt-devel xz expat-devel libaio-devel rpcgen libtirpc-devel perl python-devel cyrus-sasl-devel sqlite-devel oniguruma-devel;
     do yum -y install $packages; done
 
     yum -y update nss
 
     if [ "${DISTRO}" = "CentOS" ] && echo "${CentOS_Version}" | grep -Eqi "^8"; then
+        if ! yum repolist all|grep PowerTools; then
+            echo "PowerTools repository not found, add PowerTools repository ..."
+            cat >/etc/yum.repos.d/CentOS-PowerTools.repo<<EOF
+[PowerTools]
+name=CentOS-\$releasever - PowerTools
+mirrorlist=http://mirrorlist.centos.org/?release=\$releasever&arch=\$basearch&repo=PowerTools&infra=\$infra
+#baseurl=http://mirror.centos.org/\$contentdir/\$releasever/PowerTools/\$basearch/os/
+gpgcheck=1
+enabled=0
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
+EOF
+        fi
         dnf --enablerepo=PowerTools install rpcgen -y
         dnf --enablerepo=PowerTools install oniguruma-devel -y
     fi
@@ -270,7 +270,7 @@ Deb_Dependent()
     apt-get -fy install
     export DEBIAN_FRONTEND=noninteractive
     apt-get --no-install-recommends install -y build-essential gcc g++ make
-    for packages in debian-keyring debian-archive-keyring build-essential gcc g++ make cmake autoconf automake re2c wget cron bzip2 libzip-dev libc6-dev bison file rcconf flex vim bison m4 gawk less cpp binutils diffutils unzip tar bzip2 libbz2-dev libncurses5 libncurses5-dev libtool libevent-dev openssl libssl-dev zlibc libsasl2-dev libltdl3-dev libltdl-dev zlib1g zlib1g-dev libbz2-1.0 libbz2-dev libglib2.0-0 libglib2.0-dev libpng3 libjpeg-dev libpng-dev libpng12-0 libpng12-dev libkrb5-dev curl libcurl3-gnutls libcurl4-gnutls-dev libcurl4-openssl-dev libpq-dev libpq5 gettext libpng12-dev libxml2-dev libcap-dev ca-certificates libc-client2007e-dev psmisc patch git libc-ares-dev libicu-dev e2fsprogs libxslt libxslt1-dev libc-client-dev xz-utils libexpat1-dev libaio-dev libtirpc-dev python-dev libsqlite3-dev libonig-dev;
+    for packages in debian-keyring debian-archive-keyring build-essential gcc g++ make cmake autoconf automake re2c wget cron bzip2 libzip-dev libc6-dev bison file rcconf flex bison m4 gawk less cpp binutils diffutils unzip tar bzip2 libbz2-dev libncurses5 libncurses5-dev libtool libevent-dev openssl libssl-dev zlibc libsasl2-dev libltdl3-dev libltdl-dev zlib1g zlib1g-dev libbz2-1.0 libbz2-dev libglib2.0-0 libglib2.0-dev libpng3 libjpeg-dev libpng-dev libpng12-0 libpng12-dev libkrb5-dev curl libcurl3-gnutls libcurl4-gnutls-dev libcurl4-openssl-dev libpcre3-dev libpq-dev libpq5 gettext libpng12-dev libxml2-dev libcap-dev ca-certificates libc-client2007e-dev psmisc patch git libc-ares-dev libicu-dev e2fsprogs libxslt libxslt1-dev libc-client-dev xz-utils libexpat1-dev libaio-dev libtirpc-dev python-dev libsqlite3-dev libonig-dev;
     do apt-get --no-install-recommends install -y $packages; done
 }
 
@@ -397,10 +397,10 @@ Install_Mhash()
 
 Install_Freetype()
 {
-    if echo "${Ubuntu_Version}" | grep -Eqi "^1[89]\." || echo "${Mint_Version}" | grep -Eqi "^19\." || echo "${Deepin_Version}" | grep -Eqi "^15\.[7-9]|1[0-9]" || echo "${Debian_Version}" | grep -Eqi "^9|10"; then
-        Download_Files ${Download_Mirror}/lib/freetype/${Freetype_New_Ver}.tar.bz2 ${Freetype_New_Ver}.tar.bz2
+    if echo "${Ubuntu_Version}" | grep -Eqi "^1[89]\.|20\." || echo "${Mint_Version}" | grep -Eqi "^19\." || echo "${Deepin_Version}" | grep -Eqi "^15\.[7-9]|1[6-9]|20" || echo "${Debian_Version}" | grep -Eqi "^9|10" || echo "${Raspbian_Version}" | grep -Eqi "^9|10" || echo "${CentOS_Version}" | grep -Eqi "^8"  || echo "${RHEL_Version}" | grep -Eqi "^8" || echo "${Fedora_Version}" | grep -Eqi "^3[0-9]|29"; then
+        Download_Files ${Download_Mirror}/lib/freetype/${Freetype_New_Ver}.tar.xz ${Freetype_New_Ver}.tar.xz
         Echo_Blue "[+] Installing ${Freetype_New_Ver}"
-        Tarj_Cd ${Freetype_New_Ver}.tar.bz2 ${Freetype_New_Ver}
+        TarJ_Cd ${Freetype_New_Ver}.tar.xz ${Freetype_New_Ver}
         ./configure --prefix=/usr/local/freetype --enable-freetype-config
     else
         Download_Files ${Download_Mirror}/lib/freetype/${Freetype_Ver}.tar.bz2 ${Freetype_Ver}.tar.bz2
@@ -446,11 +446,8 @@ Install_Pcre()
         Echo_Blue "[+] Installing ${Pcre_Ver}"
         cd ${cur_dir}/src
         Download_Files ${Download_Mirror}/web/pcre/${Pcre_Ver}.tar.bz2 ${Pcre_Ver}.tar.bz2
-        Tarj_Cd ${Pcre_Ver}.tar.bz2 ${Pcre_Ver}
-        ./configure
-        Make_Install
-        cd ${cur_dir}/src/
-        rm -rf ${cur_dir}/src/${Pcre_Ver}
+        Tarj_Cd ${Pcre_Ver}.tar.bz2
+        Nginx_With_Pcre="--with-pcre=${cur_dir}/src/${Pcre_Ver}"
     fi
 }
 
@@ -599,13 +596,12 @@ Install_Nghttp2()
         cd ${cur_dir}/src
         Download_Files ${Download_Mirror}/lib/nghttp2/${Nghttp2_Ver}.tar.xz ${Nghttp2_Ver}.tar.xz
         [[ -d "${Nghttp2_Ver}" ]] && rm -rf ${Nghttp2_Ver}
-        tar Jxf ${Nghttp2_Ver}.tar.xz && cd ${Nghttp2_Ver}
+        TarJ_Cd ${Nghttp2_Ver}.tar.xz ${Nghttp2_Ver}
         ./configure --prefix=/usr/local/nghttp2
         Make_Install
         cd ${cur_dir}/src/
         rm -rf ${cur_dir}/src/${Nghttp2_Ver}
     fi
-}
 
 Uninstall_Nghttp2()
 {
