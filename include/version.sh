@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 Autoconf_Ver='autoconf-2.13'
 Libiconv_Ver='libiconv-1.15'
@@ -33,15 +33,15 @@ elif [ "${DBSelect}" = "4" ]; then
 elif [ "${DBSelect}" = "5" ]; then
     Mysql_Ver='mysql-8.0.20'
 elif [ "${DBSelect}" = "6" ]; then
-    Mariadb_Ver='mariadb-5.5.66'
+    Mariadb_Ver='mariadb-5.5.68'
 elif [ "${DBSelect}" = "7" ]; then
-    Mariadb_Ver='mariadb-10.1.43'
+    Mariadb_Ver='mariadb-10.1.45'
 elif [ "${DBSelect}" = "8" ]; then
-    Mariadb_Ver='mariadb-10.2.30'
+    Mariadb_Ver='mariadb-10.2.32'
 elif [ "${DBSelect}" = "9" ]; then
-    Mariadb_Ver='mariadb-10.3.21'
+    Mariadb_Ver='mariadb-10.3.23'
 elif [ "${DBSelect}" = "10" ]; then
-    Mariadb_Ver='mariadb-10.4.11'
+    Mariadb_Ver='mariadb-10.4.13'
 fi
 if [ "${PHPSelect}" = "1" ]; then
     Php_Ver='php-5.2.17'
@@ -58,11 +58,11 @@ elif [ "${PHPSelect}" = "6" ]; then
 elif [ "${PHPSelect}" = "7" ]; then
     Php_Ver='php-7.1.33'
 elif [ "${PHPSelect}" = "8" ]; then
-    Php_Ver='php-7.2.30'
+    Php_Ver='php-7.2.31'
 elif [ "${PHPSelect}" = "9" ]; then
-    Php_Ver='php-7.3.17'
+    Php_Ver='php-7.3.18'
 elif [ "${PHPSelect}" = "10" ]; then
-    Php_Ver='php-7.4.5'
+    Php_Ver='php-7.4.6'
 fi
 if [[ "${PHPSelect}" =~ ^[123]$ ]]; then
     PhpMyAdmin_Ver='phpMyAdmin-4.0.10.20-all-languages'
@@ -85,9 +85,9 @@ XCache_Ver='xcache-3.2.0'
 ImageMagick_Ver='ImageMagick-7.0.*'
 Imagick_Ver='imagick-3.4.4'
 ZendOpcache_Ver='zendopcache-7.0.5'
-Redis_Stable_Ver='redis-5.0.8'
+Redis_Stable_Ver='redis-6.0.3'
 PHPRedis_Ver='redis-5.2.2'
-Memcached_Ver='memcached-1.6.5'
+Memcached_Ver='memcached-1.6.6'
 Libmemcached_Ver='libmemcached-1.0.18'
 PHPMemcached_Ver='memcached-2.2.0'
 PHP7Memcached_Ver='memcached-3.1.5'

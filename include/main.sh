@@ -1,7 +1,7 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-DB_Info=('MySQL 5.1.73' 'MySQL 5.5.62' 'MySQL 5.6.48' 'MySQL 5.7.30' 'MySQL 8.0.20' 'MariaDB 5.5.66' 'MariaDB 10.1.43' 'MariaDB 10.2.30' 'MariaDB 10.3.21' 'MariaDB 10.4.11')
-PHP_Info=('PHP 5.2.17' 'PHP 5.3.29' 'PHP 5.4.45' 'PHP 5.5.38' 'PHP 5.6.40' 'PHP 7.0.33' 'PHP 7.1.33' 'PHP 7.2.30' 'PHP 7.3.17' 'PHP 7.4.5')
+DB_Info=('MySQL 5.1.73' 'MySQL 5.5.62' 'MySQL 5.6.48' 'MySQL 5.7.30' 'MySQL 8.0.20' 'MariaDB 5.5.68' 'MariaDB 10.1.45' 'MariaDB 10.2.32' 'MariaDB 10.3.23' 'MariaDB 10.4.13')
+PHP_Info=('PHP 5.2.17' 'PHP 5.3.29' 'PHP 5.4.45' 'PHP 5.5.38' 'PHP 5.6.40' 'PHP 7.0.33' 'PHP 7.1.33' 'PHP 7.2.31' 'PHP 7.3.18' 'PHP 7.4.6')
 Apache_Info=('Apache 2.2.34' 'Apache 2.4.41')
 
 Database_Selection()
@@ -281,11 +281,12 @@ Kill_PM()
         if [ -s /var/run/yum.pid ]; then
             rm -f /var/run/yum.pid
         fi
-    elif ps aux | grep "apt-get" | grep -qv "grep"; then
-        if command -v killall >/dev/null 2>&1; then
-            killall apt-get
-        else
-            kill `pidof apt-get`
+    elif ps aux | grep -E "apt-get|dpkg|apt" | grep -qv "grep"; then
+        kill -9 $(ps -ef|grep -E "apt-get|apt|dpkg"|grep -v grep|awk '{print $2}')
+        if [[ -s /var/lib/dpkg/lock-frontend || -s /var/lib/dpkg/lock ]]; then
+            rm -f /var/lib/dpkg/lock-frontend
+            rm -f /var/lib/dpkg/lock
+            dpkg --configure -a
         fi
     fi
 }
