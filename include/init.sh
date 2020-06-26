@@ -257,9 +257,14 @@ EOF
         dnf --enablerepo=PowerTools install oniguruma-devel -y
     fi
 
-    if [ "${DISTRO}" = "CentOS" ] && echo "${CentOS_Version}" | grep -Eqi "^7"; then
-        yum -y install https://dl.fedoraproject.org/pub/epel/7/x86_64/Packages/o/oniguruma-5.9.5-3.el7.x86_64.rpm
-        yum -y install https://dl.fedoraproject.org/pub/epel/7/x86_64/Packages/o/oniguruma-devel-5.9.5-3.el7.x86_64.rpm
+    if echo "${CentOS_Version}" | grep -Eqi "^7" || echo "${RHEL_Version}" | grep -Eqi "^7"; then
+        yum -y install epel-release
+        yum -y install oniguruma oniguruma-devel
+        if [ "${CheckMirror}" = "n" ]; then
+            cd ${cur_dir}/src/
+            yum -y install ./oniguruma-6.8.2-1.el7.x86_64.rpm
+            yum -y install ./oniguruma-devel-6.8.2-1.el7.x86_64.rpm
+        fi
     fi
 
     if [ "${DISTRO}" = "Fedora" ]; then
@@ -611,6 +616,7 @@ Install_Nghttp2()
         cd ${cur_dir}/src/
         rm -rf ${cur_dir}/src/${Nghttp2_Ver}
     fi
+}
 
 Uninstall_Nghttp2()
 {
@@ -619,6 +625,24 @@ Uninstall_Nghttp2()
     rm -rf /usr/local/nghttp2
     Restart_PHP
     Echo_Green "Uninstall Nghttp2 completed."
+}
+
+Install_Libzip()
+{
+    if echo "${CentOS_Version}" | grep -Eqi "^7"  || echo "${RHEL_Version}" | grep -Eqi "^7"; then
+        if [ ! -s /usr/local/lib/libzip.so ]; then
+            Echo_Blue "[+] Installing ${Libzip_Ver}"
+            cd ${cur_dir}/src
+            Download_Files ${Download_Mirror}/lib/libzip/${Libzip_Ver}.tar.xz ${Libzip_Ver}.tar.xz
+            TarJ_Cd ${Libzip_Ver}.tar.xz ${Libzip_Ver}
+            ./configure
+            Make_Install
+            cd ${cur_dir}/src/
+            rm -rf ${cur_dir}/src/${Libzip_Ver}
+        fi
+        export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH
+        ldconfig
+    fi
 }
 
 CentOS_Lib_Opt()
