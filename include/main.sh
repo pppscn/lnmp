@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 DB_Info=('MySQL 5.1.73' 'MySQL 5.5.62' 'MySQL 5.6.48' 'MySQL 5.7.30' 'MySQL 8.0.20' 'MariaDB 5.5.68' 'MariaDB 10.1.45' 'MariaDB 10.2.32' 'MariaDB 10.3.23' 'MariaDB 10.4.13')
-PHP_Info=('PHP 5.2.17' 'PHP 5.3.29' 'PHP 5.4.45' 'PHP 5.5.38' 'PHP 5.6.40' 'PHP 7.0.33' 'PHP 7.1.33' 'PHP 7.2.32' 'PHP 7.3.20' 'PHP 7.4.8')
-Apache_Info=('Apache 2.2.34' 'Apache 2.4.41')
+PHP_Info=('PHP 5.2.17' 'PHP 5.3.29' 'PHP 5.4.45' 'PHP 5.5.38' 'PHP 5.6.40' 'PHP 7.0.33' 'PHP 7.1.33' 'PHP 7.2.33' 'PHP 7.3.22' 'PHP 7.4.10')
+Apache_Info=('Apache 2.2.34' 'Apache 2.4.46')
 
 Database_Selection()
 {
@@ -653,9 +653,15 @@ Check_Mirror()
 
 Check_CMPT()
 {
-    if [[ "${DBSelect}" = "5" || "${PHPSelect}" == "10" ]]; then
+    if [[ "${DBSelect}" = "5" ]]; then
         if echo "${Ubuntu_Version}" | grep -Eqi "^1[0-7]\." || echo "${Debian_Version}" | grep -Eqi "^[4-8]" || echo "${Raspbian_Version}" | grep -Eqi "^[4-8]" || echo "${CentOS_Version}" | grep -Eqi "^[4-7]"  || echo "${RHEL_Version}" | grep -Eqi "^[4-7]" || echo "${Fedora_Version}" | grep -Eqi "^2[0-3]"; then
-            Echo_Red "PHP 7.4 or MySQL 8.0 please use latest linux distributions!"
+            Echo_Red "MySQL 8.0 please use latest linux distributions!"
+            exit 1
+        fi
+    fi
+    if [[ "${PHPSelect}" == "10" ]]; then
+        if echo "${Ubuntu_Version}" | grep -Eqi "^1[0-7]\." || echo "${Debian_Version}" | grep -Eqi "^[4-8]" || echo "${Raspbian_Version}" | grep -Eqi "^[4-8]" || echo "${CentOS_Version}" | grep -Eqi "^[4-6]"  || echo "${RHEL_Version}" | grep -Eqi "^[4-6]" || echo "${Fedora_Version}" | grep -Eqi "^2[0-3]"; then
+            Echo_Red "PHP 7.4 please use latest linux distributions!"
             exit 1
         fi
     fi
