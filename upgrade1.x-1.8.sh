@@ -12,6 +12,7 @@ isSSL=$1
 
 . lnmp.conf
 . include/main.sh
+. include/init.sh
 
 Get_Dist_Name
 Check_Stack
@@ -27,20 +28,9 @@ Upgrade_Dependent()
         yum -y update nss
 
         if [ "${DISTRO}" = "CentOS" ] && echo "${CentOS_Version}" | grep -Eqi "^8"; then
-            if ! yum repolist all|grep PowerTools; then
-                echo "PowerTools repository not found, add PowerTools repository ..."
-                cat >/etc/yum.repos.d/CentOS-PowerTools.repo<<EOF
-[PowerTools]
-name=CentOS-\$releasever - PowerTools
-mirrorlist=http://mirrorlist.centos.org/?release=\$releasever&arch=\$basearch&repo=PowerTools&infra=\$infra
-#baseurl=http://mirror.centos.org/\$contentdir/\$releasever/PowerTools/\$basearch/os/
-gpgcheck=1
-enabled=0
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
-EOF
-            fi
-            dnf --enablerepo=PowerTools install rpcgen re2c -y
-            dnf --enablerepo=PowerTools install oniguruma-devel -y
+            Check_PowerTools
+            dnf --enablerepo=${repo_id} install rpcgen re2c -y
+            dnf --enablerepo=${repo_id} install oniguruma-devel -y
         fi
 
         if echo "${CentOS_Version}" | grep -Eqi "^7" || echo "${RHEL_Version}" | grep -Eqi "^7"; then
@@ -284,7 +274,7 @@ if [ "${isSSL}" == "ssl" ]; then
     fi
 else
     echo "+--------------------------------------------------+"
-    echo "|  A tool to upgrade lnmp manager from 1.x to 1.7  |"
+    echo "|  A tool to upgrade lnmp manager from 1.x to 1.8  |"
     echo "+--------------------------------------------------+"
     echo "|For more information please visit https://lnmp.org|"
     echo "+--------------------------------------------------+"

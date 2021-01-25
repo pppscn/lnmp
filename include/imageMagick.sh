@@ -41,8 +41,10 @@ Install_ImageMagic()
         else
             #Download_Files ${Download_Mirror}/web/imagemagick/${ImageMagick_Ver}.tar.bz2 ${ImageMagick_Ver}.tar.bz2
             #Tarj_Cd ${ImageMagick_Ver}.tar.bz2 ${ImageMagick_Ver}
-            rm -rf ImageMagick*
-            Download_Files https://imagemagick.org/download/ImageMagick.tar.gz
+            if [ ! -s "ImageMagick.tar.gz" ]; then
+                Download_Files https://imagemagick.org/download/ImageMagick.tar.gz
+            fi
+            rm -rf ImageMagick-*
             tar xvzf ImageMagick.tar.gz
             cd ${ImageMagick_Ver}
         fi
@@ -50,6 +52,7 @@ Install_ImageMagic()
         ./configure --prefix=/usr/local/imagemagick
         Make_Install
         cd ../
+        rm -rf ${cur_dir}/src/ImageMagick.tar.gz
         rm -rf ${cur_dir}/src/${ImageMagick_Ver}
     fi
 

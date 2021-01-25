@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 DB_Info=('MySQL 5.1.73' 'MySQL 5.5.62' 'MySQL 5.6.48' 'MySQL 5.7.30' 'MySQL 8.0.20' 'MariaDB 5.5.68' 'MariaDB 10.1.45' 'MariaDB 10.2.32' 'MariaDB 10.3.23' 'MariaDB 10.4.13')
-PHP_Info=('PHP 5.2.17' 'PHP 5.3.29' 'PHP 5.4.45' 'PHP 5.5.38' 'PHP 5.6.40' 'PHP 7.0.33' 'PHP 7.1.33' 'PHP 7.2.34' 'PHP 7.3.25' 'PHP 7.4.13')
+PHP_Info=('PHP 5.2.17' 'PHP 5.3.29' 'PHP 5.4.45' 'PHP 5.5.38' 'PHP 5.6.40' 'PHP 7.0.33' 'PHP 7.1.33' 'PHP 7.2.34' 'PHP 7.3.26' 'PHP 7.4.14' 'PHP 8.0.1')
 Apache_Info=('Apache 2.2.34' 'Apache 2.4.46')
 
 Database_Selection()
@@ -135,7 +135,8 @@ PHP_Selection()
         echo "8: Install ${PHP_Info[7]}"
         echo "9: Install ${PHP_Info[8]}"
         echo "10: Install ${PHP_Info[9]}"
-        read -p "Enter your choice (1, 2, 3, 4, 5, 6, 7, 8, 9, 10): " PHPSelect
+        echo "11: Install ${PHP_Info[10]}"
+        read -p "Enter your choice (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11): " PHPSelect
     fi
 
     case "${PHPSelect}" in
@@ -172,6 +173,9 @@ PHP_Selection()
         ;;
     10)
         echo "You will install ${PHP_Info[9]}"
+        ;;
+    11)
+        echo "You will install ${PHP_Info[10]}"
         ;;
     *)
         echo "No input,You will install ${PHP_Info[4]}"
@@ -355,17 +359,20 @@ Get_Dist_Name()
     if grep -Eqi "CentOS" /etc/issue || grep -Eq "CentOS" /etc/*-release; then
         DISTRO='CentOS'
         PM='yum'
-    elif grep -Eqi "Red Hat Enterprise Linux" /etc/issue || grep -Eq "Red Hat Enterprise Linux" /etc/*-release; then
-        DISTRO='RHEL'
-        PM='yum'
     elif grep -Eqi "Aliyun" /etc/issue || grep -Eq "Aliyun" /etc/*-release; then
         DISTRO='Aliyun'
+        PM='yum'
+    elif grep -Eqi "Amazon Linux" /etc/issue || grep -Eq "Amazon Linux" /etc/*-release; then
+        DISTRO='Amazon'
         PM='yum'
     elif grep -Eqi "Fedora" /etc/issue || grep -Eq "Fedora" /etc/*-release; then
         DISTRO='Fedora'
         PM='yum'
-    elif grep -Eqi "Amazon Linux" /etc/issue || grep -Eq "Amazon Linux" /etc/*-release; then
-        DISTRO='Amazon'
+    elif grep -Eqi "Oracle Linux" /etc/issue || grep -Eq "Oracle Linux" /etc/*-release; then
+        DISTRO='Oracle'
+        PM='yum'
+    elif grep -Eqi "Red Hat Enterprise Linux" /etc/issue || grep -Eq "Red Hat Enterprise Linux" /etc/*-release; then
+        DISTRO='RHEL'
         PM='yum'
     elif grep -Eqi "Debian" /etc/issue || grep -Eq "Debian" /etc/*-release; then
         DISTRO='Debian'
@@ -782,7 +789,7 @@ StartOrStop()
 {
     local action=$1
     local service=$2
-    if command -v systemctl >/dev/null 2>&1 && [[ -s /etc/systemd/system/${service}.service || -s /lib/systemd/system/${service}.service || -s /usr/lib/systemd/system/${service}.service ]]; then
+    if command -v systemctl >/dev/null 2>&1 && [[ -s /etc/systemd/system/${service}.service ]]; then
         systemctl ${action} ${service}.service
     else
         /etc/init.d/${service} ${action}
