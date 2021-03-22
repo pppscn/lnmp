@@ -119,8 +119,6 @@ Install_Multiplephp()
     elif [ "${PHPSelect}" = "11" ]; then
         Install_MPHP8.0 2>&1 | tee /root/install-mphp8.0.log
     fi
-
-    exit
 }
 
 Install_MPHP5.2()

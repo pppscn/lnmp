@@ -63,16 +63,16 @@ elif [ "${PHPSelect}" = "8" ]; then
 elif [ "${PHPSelect}" = "9" ]; then
     Php_Ver='php-7.3.27'
 elif [ "${PHPSelect}" = "10" ]; then
-    Php_Ver='php-7.4.15'
+    Php_Ver='php-7.4.16'
 elif [ "${PHPSelect}" = "11" ]; then
-    Php_Ver='php-8.0.2'
+    Php_Ver='php-8.0.3'
 fi
 if [[ "${PHPSelect}" =~ ^[123]$ ]]; then
     PhpMyAdmin_Ver='phpMyAdmin-4.0.10.20-all-languages'
 elif [[ "${PHPSelect}" =~ ^[456]$ ]]; then
     PhpMyAdmin_Ver='phpMyAdmin-4.9.7-all-languages'
 else
-    PhpMyAdmin_Ver='phpMyAdmin-5.0.4-all-languages'
+    PhpMyAdmin_Ver='phpMyAdmin-5.1.0-all-languages'
 fi
 APR_Ver='apr-1.7.0'
 APR_Util_Ver='apr-util-1.6.1'
@@ -88,8 +88,8 @@ XCache_Ver='xcache-3.2.0'
 ImageMagick_Ver='ImageMagick-7.0.*'
 Imagick_Ver='imagick-3.4.4'
 ZendOpcache_Ver='zendopcache-7.0.5'
-Redis_Stable_Ver='redis-6.0.10'
-PHPRedis_Ver='redis-5.3.2'
+Redis_Stable_Ver='redis-6.0.12'
+PHPRedis_Ver='redis-5.3.3'
 Memcached_Ver='memcached-1.6.7'
 Libmemcached_Ver='libmemcached-1.0.18'
 PHPMemcached_Ver='memcached-2.2.0'
@@ -97,5 +97,5 @@ PHP7Memcached_Ver='memcached-3.1.5'
 PHPMemcache_Ver='memcache-3.0.8'
 PHP7Memcache_Ver='memcache-4.0.5.2'
 PHPOldApcu_Ver='apcu-4.0.11'
-PHPNewApcu_Ver='apcu-5.1.19'
+PHPNewApcu_Ver='apcu-5.1.20'
 PHPApcu_Bc_Ver='apcu_bc-1.0.5'

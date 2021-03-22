@@ -249,6 +249,15 @@ Ubuntu_Deadline()
     esac
 }
 
+CentOS6_Modify_Source()
+{
+    if echo "${CentOS_Version}" | grep -Eqi "^6"; then
+        Echo_Yellow "CentOS 6 is now end of life, use vault repository."
+        \cp /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.backup
+        \cp ${cur_dir}/conf/CentOS6-Base-Vault.repo /etc/yum.repos.d/CentOS-Base.repo
+    fi
+}
+
 Check_PowerTools()
 {
     if ! yum -v repolist all|grep "PowerTools"; then
@@ -668,7 +677,7 @@ Install_Nghttp2()
 
 Install_Libzip()
 {
-    if echo "${CentOS_Version}" | grep -Eqi "^7"  || echo "${RHEL_Version}" | grep -Eqi "^7"; then
+    if echo "${CentOS_Version}" | grep -Eqi "^7"  || echo "${RHEL_Version}" | grep -Eqi "^7"  || echo "${Aliyun_Version}" | grep -Eqi "^2"; then
         if [ ! -s /usr/local/lib/libzip.so ]; then
             Echo_Blue "[+] Installing ${Libzip_Ver}"
             cd ${cur_dir}/src
