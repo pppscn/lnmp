@@ -217,14 +217,11 @@ Select_PHP
             8|ion[cC]ube)
                 Install_ionCube
                 ;;
-            9|[nN]ghttp2)
-                Install_Nghttp2
-                ;;
             [eE][xX][iI][tT])
                 exit 1
                 ;;
             *)
-                echo "Usage: ./addons.sh {install|update|uninstall} {eaccelerator|xcache|memcached|opcache|redis|imagemagick|ioncube|nghttp2}"
+                echo "Usage: ./addons.sh {install|update|uninstall} {eaccelerator|xcache|memcached|opcache|redis|imagemagick|ioncube}"
                 ;;
         esac
         ;;
@@ -297,11 +294,8 @@ Select_PHP
             ion[cC]ube)
                 Uninstall_ionCube
                 ;;
-            [nN]ghttp2)
-                Uninstall_Nghttp2
-                ;;
             *)
-                echo "Usage: ./addons.sh {install|update|uninstall} {eaccelerator|xcache|memcached|opcache|redis|apcu|imagemagick|ioncube|nghttp2}"
+                echo "Usage: ./addons.sh {install|update|uninstall} {eaccelerator|xcache|memcached|opcache|redis|apcu|imagemagick|ioncube}"
                 ;;
         esac
         ;;

@@ -4,7 +4,10 @@ Install_PHPMemcache()
 {
     echo "Install memcache php extension..."
     cd ${cur_dir}/src
-    if echo "${Cur_PHP_Version}" | grep -Eqi '^7.';then
+    if echo "${Cur_PHP_Version}" | grep -Eqi '^8.';then
+        Download_Files ${Download_Mirror}/web/memcache/${PHP8Memcache_Ver}.tgz ${PHP8Memcache_Ver}.tgz
+        Tar_Cd ${PHP8Memcache_Ver}.tgz ${PHP8Memcache_Ver}
+    elif echo "${Cur_PHP_Version}" | grep -Eqi '^7.';then
         Download_Files ${Download_Mirror}/web/memcache/${PHP7Memcache_Ver}.tgz ${PHP7Memcache_Ver}.tgz
         Tar_Cd ${PHP7Memcache_Ver}.tgz ${PHP7Memcache_Ver}
     else
@@ -31,6 +34,7 @@ Install_PHPMemcached()
             export CXX="g++44"
         fi
     elif [ "$PM" = "apt" ]; then
+        export DEBIAN_FRONTEND=noninteractive
         apt-get install libsasl2-2 sasl2-bin libsasl2-2 libsasl2-dev libsasl2-modules -y
     fi
     Download_Files ${Download_Mirror}/web/libmemcached/${Libmemcached_Ver}.tar.gz
@@ -43,7 +47,17 @@ Install_PHPMemcached()
     cd ../
 
     cd ${cur_dir}/src
-    if echo "${Cur_PHP_Version}" | grep -Eqi '^7.';then
+    if echo "${Cur_PHP_Version}" | grep -Eqi '^8.';then
+        [[ -d "php-memcached-src" ]] && rm -rf "php-memcached-src"
+        Get_Country
+        if [ "${country}" = "CN" ]; then
+            git clone https://github.com.cnmpjs.org/php-memcached-dev/php-memcached php-memcached-src
+            cd php-memcached-src
+        else
+            git clone https://github.com/php-memcached-dev/php-memcached php-memcached-src
+            cd php-memcached-src
+        fi
+    elif echo "${Cur_PHP_Version}" | grep -Eqi '^7.';then
         Download_Files ${Download_Mirror}/web/php-memcached/${PHP7Memcached_Ver}.tgz ${PHP7Memcached_Ver}.tgz
         Tar_Cd ${PHP7Memcached_Ver}.tgz ${PHP7Memcached_Ver}
     else

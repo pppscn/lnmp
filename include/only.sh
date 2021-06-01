@@ -8,6 +8,7 @@ Nginx_Dependent()
         for packages in make gcc gcc-c++ gcc-g77 wget crontabs zlib zlib-devel openssl openssl-devel perl patch bzip2;
         do yum -y install $packages; done
     elif [ "$PM" = "apt" ]; then
+        export DEBIAN_FRONTEND=noninteractive
         apt-get update -y
         dpkg -P apache2 apache2-doc apache2-mpm-prefork apache2-utils apache2.2-common
         for removepackages in apache2 apache2-doc apache2-utils apache2.2-common apache2.2-bin apache2-mpm-prefork apache2-doc apache2-mpm-worker;
@@ -61,20 +62,24 @@ DB_Dependent()
             rpm -e mysql mysql-libs --nodeps
             rpm -e mariadb mariadb-libs --nodeps
         fi
-        for packages in make cmake gcc gcc-c++ gcc-g77 flex bison wget zlib zlib-devel openssl openssl-devel ncurses ncurses-devel libaio-devel rpcgen libtirpc-devel patch cyrus-sasl-devel;
+        for packages in make cmake gcc gcc-c++ gcc-g77 flex bison wget zlib zlib-devel openssl openssl-devel ncurses ncurses-devel libaio-devel rpcgen libtirpc-devel patch cyrus-sasl-devel pkg-config;
         do yum -y install $packages; done
         if [ "${DISTRO}" = "CentOS" ] && echo "${CentOS_Version}" | grep -Eqi "^8"; then
             Check_PowerTools
             dnf --enablerepo=${repo_id} install rpcgen -y
         fi
+        if echo "${CentOS_Version}" | grep -Eqi "^8" && cat /etc/centos-release | grep -Eqi "CentOS Stream"; then
+            dnf install gcc-toolset-10 -y
+        fi
     elif [ "$PM" = "apt" ]; then
+        export DEBIAN_FRONTEND=noninteractive
         apt-get update -y
         for removepackages in mysql-client mysql-server mysql-common mysql-server-core-5.5 mysql-client-5.5 mariadb-client mariadb-server mariadb-common;
         do apt-get purge -y $removepackages; done
         dpkg -l |grep mysql
         dpkg -P mysql-server mysql-common libmysqlclient15off libmysqlclient15-dev
         dpkg -P mariadb-client mariadb-server mariadb-common
-        for packages in debian-keyring debian-archive-keyring build-essential gcc g++ make cmake autoconf automake wget openssl libssl-dev zlib1g zlib1g-dev libncurses5 libncurses5-dev bison libaio-dev libtirpc-dev libsasl2-dev;
+        for packages in debian-keyring debian-archive-keyring build-essential gcc g++ make cmake autoconf automake wget openssl libssl-dev zlib1g zlib1g-dev libncurses5 libncurses5-dev bison libaio-dev libtirpc-dev libsasl2-dev pkg-config;
         do apt-get --no-install-recommends install -y $packages; done
     fi
 }
@@ -91,6 +96,7 @@ Install_Database()
     echo "============================check files=================================="
 
     Echo_Blue "Install dependent packages..."
+    Get_Dist_Version
     DB_Dependent
     if [ "${DBSelect}" = "1" ]; then
         Install_MySQL_51

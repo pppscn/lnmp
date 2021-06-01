@@ -554,7 +554,17 @@ Restore_Start_MySQL()
     echo "Restore backup databases..."
     /usr/local/mysql/bin/mysql --defaults-file=~/.my.cnf < /root/mysql_all_backup${Upgrade_Date}.sql
     echo "Repair databases..."
-    /usr/local/mysql/bin/mysql_upgrade -u root -p${DB_Root_Password}
+    MySQL_Ver_Com=$(${cur_dir}/include/version_compare 8.0.16 ${mysql_version})
+    if [ "${MySQL_Ver_Com}" != "1" ]; then
+        /etc/init.d/mysql stop
+        echo "Upgring MySQL..."
+        /usr/local/mysql/bin/mysqld --user=mysql --upgrade=FORCE &
+        echo "Waiting for upgrade to start..."
+        sleep 180
+        /usr/local/mysql/bin/mysqladmin --defaults-file=~/.my.cnf shutdown
+    else
+        /usr/local/mysql/bin/mysql_upgrade -u root -p${DB_Root_Password}
+    fi
 
     /etc/init.d/mysql stop
     TempMycnf_Clean
@@ -648,7 +658,7 @@ Upgrade_MySQL()
         echo "${mysql_src} [found]"
     else
         echo "Notice: ${mysql_src} not found!!!download now......"
-        country=`curl -sSk --connect-timeout 10 -m 60 https://ip.vpser.net/country`
+        Get_Country
         if [ "${country}" = "CN" ]; then
             wget -c --progress=bar:force http://mirrors.ustc.edu.cn/mysql-ftp/Downloads/MySQL-${mysql_short_version}/${mysql_src}
             if [ $? -ne 0 ]; then
@@ -662,10 +672,10 @@ Upgrade_MySQL()
         else
             wget -c --progress=bar:force https://cdn.mysql.com/archives/MySQL-${mysql_short_version}/${mysql_src}
             if [ $? -ne 0 ]; then
-            echo "You enter MySQL Version was: ${mysql_version}"
-            Echo_Red "Error! You entered a wrong version number, please check!"
-            sleep 5
-            exit 1
+                echo "You enter MySQL Version was: ${mysql_version}"
+                Echo_Red "Error! You entered a wrong version number, please check!"
+                sleep 5
+                exit 1
             fi
         fi
     fi

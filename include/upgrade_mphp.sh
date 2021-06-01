@@ -96,19 +96,22 @@ Upgrade_Multiplephp()
         echo "php-${php_version}.tar.bz2 [found]"
     else
         echo "Notice: php-${php_version}.tar.bz2 not found!!!download now..."
-        country=`curl -sSk --connect-timeout 10 -m 60 https://ip.vpser.net/country`
+        Get_Country
         if [ "${country}" = "CN" ]; then
-            wget -c --progress=bar:force http://php.vpser.net/php-${php_version}.tar.bz2
+            Download_Files http://php.vpszt.com/php-${php_version}.tar.bz2 php-${php_version}.tar.bz2
             if [ $? -ne 0 ]; then
-                wget -c --progress=bar:force https://www.php.net/distributions/php-${php_version}.tar.bz2
+                Download_Files https://www.php.net/distributions/php-${php_version}.tar.bz2 php-${php_version}.tar.bz2
             fi
         else
-            wget -c --progress=bar:force https://www.php.net/distributions/php-${php_version}.tar.bz2
+            Download_Files https://www.php.net/distributions/php-${php_version}.tar.bz2 php-${php_version}.tar.bz2
+            if [ $? -ne 0 ]; then
+                Download_Files http://php.vpszt.com/php-${php_version}.tar.bz2 php-${php_version}.tar.bz2
+            fi
         fi
         if [ $? -eq 0 ]; then
             echo "Download php-${Php_Ver}.tar.bz2 successfully!"
         else
-            wget -c --progress=bar:force http://museum.php.net/php5/php-${php_version}.tar.bz2
+            Download_Files http://museum.php.net/php5/php-${php_version}.tar.bz2 php-${php_version}.tar.bz2
             if [ $? -eq 0 ]; then
                 echo "Download php-${php_version}.tar.bz2 successfully!"
             else

@@ -31,19 +31,22 @@ Start_Upgrade_PHP()
         echo "php-${php_version}.tar.bz2 [found]"
     else
         echo "Notice: php-$php_version.tar.bz2 not found!!!download now..."
-        country=`curl -sSk --connect-timeout 10 -m 60 https://ip.vpser.net/country`
+        Get_Country
         if [ "${country}" = "CN" ]; then
-            wget -c --progress=bar:force http://php.vpser.net/php-${php_version}.tar.bz2
+            Download_Files http://php.vpszt.com/php-${php_version}.tar.bz2 php-${php_version}.tar.bz2
             if [ $? -ne 0 ]; then
-                wget -c --progress=bar:force https://www.php.net/distributions/php-${php_version}.tar.bz2
+                Download_Files https://www.php.net/distributions/php-${php_version}.tar.bz2 php-${php_version}.tar.bz2
             fi
         else
-            wget -c --progress=bar:force https://www.php.net/distributions/php-${php_version}.tar.bz2
+            Download_Files https://www.php.net/distributions/php-${php_version}.tar.bz2 php-${php_version}.tar.bz2
+            if [ $? -ne 0 ]; then
+                Download_Files http://php.vpszt.com/php-${php_version}.tar.bz2 php-${php_version}.tar.bz2
+            fi
         fi
         if [ $? -eq 0 ]; then
             echo "Download php-${php_version}.tar.bz2 successfully!"
         else
-            wget -c --progress=bar:force http://museum.php.net/php5/php-${php_version}.tar.bz2
+            Download_Files http://museum.php.net/php5/php-${php_version}.tar.bz2 php-${php_version}.tar.bz2
             if [ $? -eq 0 ]; then
                 echo "Download php-${php_version}.tar.bz2 successfully!"
             else
@@ -85,6 +88,7 @@ Install_PHP_Dependent()
         for packages in c-ares-devel libicu-devel libxslt libxslt-devel xz expat-devel libzip-devel bzip2 bzip2-devel sqlite-devel oniguruma-devel;
         do yum -y install $packages; done
     elif [ "$PM" = "apt" ]; then
+        export DEBIAN_FRONTEND=noninteractive
         apt-get update
         for packages in libc-ares-dev libicu-dev e2fsprogs libxslt1.1 libxslt1-dev libc-client-dev xz-utils libexpat1-dev bzip2 libbz2-dev libsqlite3-dev libonig-dev;
         do apt-get --no-install-recommends install -y $packages; done
@@ -155,7 +159,6 @@ Check_PHP_Upgrade_Files()
             fi
         fi
     fi
-    exit 1
 }
 
 Upgrade_PHP_52()
