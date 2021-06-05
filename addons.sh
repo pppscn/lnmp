@@ -102,7 +102,7 @@ Select_PHP()
             Echo_Green "11: PHP 7.4 [found]"
         fi
         if [[ -s /usr/local/php8.0/sbin/php-fpm && -s /usr/local/nginx/conf/enable-php8.0.conf && -s /etc/init.d/php-fpm8.0 ]]; then
-            Echo_Green "11: PHP 8.0 [found]"
+            Echo_Green "12: PHP 8.0 [found]"
         fi
         Echo_Yellow "Enter your choice (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 or 12 ): "
         read php_select
@@ -258,10 +258,6 @@ Select_PHP
             ion[cC]ube)
                 Uninstall_ionCube
                 Install_ionCube
-                ;;
-            [nN]ghttp2)
-                Uninstall_Nghttp2
-                Install_Nghttp2
                 ;;
             *)
                 echo "Usage: ./addons.sh {install|update|uninstall} {eaccelerator|xcache|memcached|opcache|redis|apcu|imagemagick|ioncube|nghttp2}"
