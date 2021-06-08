@@ -1,0 +1,8 @@
+logging.lo: /root/logging/logging.c
+	$(LIBTOOL) --mode=compile $(CC)  -I. -I/root/logging $(COMMON_FLAGS) $(CFLAGS_CLEAN) $(EXTRA_CFLAGS)  -c /root/logging/logging.c -o logging.lo 
+$(phplibdir)/logging.la: ./logging.la
+	$(LIBTOOL) --mode=install cp ./logging.la $(phplibdir)
+
+./logging.la: $(shared_objects_logging) $(LOGGING_SHARED_DEPENDENCIES)
+	$(LIBTOOL) --mode=link $(CC) $(COMMON_FLAGS) $(CFLAGS_CLEAN) $(EXTRA_CFLAGS) $(LDFLAGS)  -o $@ -export-dynamic -avoid-version -prefer-pic -module -rpath $(phplibdir) $(EXTRA_LDFLAGS) $(shared_objects_logging) $(LOGGING_SHARED_LIBADD)
+

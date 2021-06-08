@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/!svn/ver/82935/logging/php_ext/php7/logging/build
+END
+mkdep.awk
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/!svn/ver/82935/logging/php_ext/php7/logging/build/mkdep.awk
+END
+libtool.m4
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/!svn/ver/82935/logging/php_ext/php7/logging/build/libtool.m4
+END
+scan_makefile_in.awk
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/!svn/ver/82935/logging/php_ext/php7/logging/build/scan_makefile_in.awk
+END
+shtool
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/!svn/ver/82935/logging/php_ext/php7/logging/build/shtool
+END
